@@ -1,0 +1,44 @@
+app:
+  engine:
+    engine options...
+  control:
+    type: "linear"
+    P: 13.6
+    I: 0
+    D: 0.0023
+  model:
+    name: "BasicDelta"
+    l: 12.023u"mm"
+    L: 236.08u"mm"
+    m1: 87.1u"g"
+  cams: [
+    cam:
+      name: "left-eye"
+      type: "adafruit-ptc08"
+      x: 12.932u"mm"
+      y: 12.932u"mm"
+      z: 0.0u"mm"
+    cam:
+      name: "right-eye"
+      type: "adafruit-ptc08"
+      x: 12.932u"mm"
+      y: 12.932u"mm"
+      z: 0.0u"mm"
+  ]
+  imus: [
+    imu:
+      name: "base-imu"
+      type: "hillcrest-fsm300"
+      x: 0.0u"mm"
+      y: 0.0u"mm"
+      z: 0.0u"mm"
+    imu:
+      name: "ee-imu"
+      type: "hillcrest-fsm300"
+      x: 0.0u"mm"
+      y: 0.0u"mm"
+      z: 123.0u"mm"
+  ]
+  motors: [
+
+  ]

@@ -1,0 +1,34 @@
+StateEstimator:
+  type: "UnscentedKalmanFilter"
+  Pose:
+    type: "Simple"
+  IMUs:
+    - type: "HillcrestFSM300"
+      a: 123.0
+    - type: "HillcrestFSM300"
+      a: -321.0
+Engine:
+  type: "UCIEngine"
+  tt_size: 16 # in MB
+  threads: 1
+  book: true
+PathPlanningAlg:
+  type: "Simple"
+Controller:
+  type: "Optimal"
+  Model:
+    type: "Simple"
+  Motors:
+    - type: "uServoSG90"
+      x: 100.001
+    - type: "uServoSG90"
+      x: 0.00012
+Recognition:
+  type: "Simple"
+Cameras:
+  - type: "AdafruitPTC08"
+    x: 100.0
+  - type: "AdafruitPTC08"
+    x: -100.0
+  - type: "MockCamera"
+    filename: "data/recog/"

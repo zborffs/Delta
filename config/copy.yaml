@@ -1,0 +1,22 @@
+StateEstimator:
+  type: "UnscentedKalmanFilter"
+  Pose:
+    type: "Simple"
+    Cameras:
+      - type: "Adafruit_PTC08"
+        x: 100.0
+      - type: "Adafruit_PTC08"
+        x: -100.0
+Engine:
+  type: "UCIEngine"
+  tt_size: 16 # in MB
+  threads: 1
+  book: true
+PathPlanningAlg:
+  type: "Simple"
+Controller:
+  type: "Optimal"
+  Model:
+    type: "Simple"
+Identification:
+  type: "Simple"
