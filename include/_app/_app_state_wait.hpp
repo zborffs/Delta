@@ -2,6 +2,7 @@
 #define DELTA__APP_STATE_WAIT_HPP
 
 #include "app.hpp"
+#include "_app_state_recognition.hpp"
 #include <spdlog/spdlog.h>
 
 class AppStateWait : public AppState {

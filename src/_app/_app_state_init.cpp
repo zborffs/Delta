@@ -23,6 +23,7 @@ bool AppStateInit::handle() {
     std::thread t(&App::rt_loop, context_);
     context_->rt_loop_thread_ = std::move(t);
 
+    /// Transition to the next state and return true to stay within App's 'main' loop
     context_->transition_to(new AppStateRecognition);
     return true; // return true if successful
 }

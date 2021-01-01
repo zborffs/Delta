@@ -11,7 +11,7 @@ void App::transition_to(AppState* state) {
 
 void App::rt_loop() {
     int i = 0;
-    std::chrono::milliseconds period{1};
+    std::chrono::milliseconds period{100};
     while (i < 1000 && !quit()) {
 #ifdef JETSON_BUILD
 #else
