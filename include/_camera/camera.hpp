@@ -2,7 +2,6 @@
 #define DELTA_CAMERA_HPP
 
 #include <typeinfo>
-
 #include <opencv2/opencv.hpp>
 
 template <class THardware>

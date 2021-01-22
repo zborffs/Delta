@@ -4,9 +4,12 @@
 /// STL Includes
 #include <memory>
 #include <vector>
+#include <string>
+#include <cmath>
 
 /// Third-Party Includes
 #include <opencv2/opencv.hpp>
+#include <matplot/matplot.h>
 
 /// Project includes
 #include "recognition.hpp"
@@ -17,6 +20,10 @@
 class SimpleRecognitionStrategy : public Recognition {
 private:
     static cv::Mat detect_edges(cv::Mat& input);
+    static cv::Mat detect_edges2(cv::Mat& input);
+    static cv::Mat detect_edges3(cv::Mat& input);
+    static inline double PI{std::acos(-1)};
+    static cv::Vec2f points_to_line(cv::Vec4f points);
 public:
 #ifdef JETSON_BUILD
     explicit SimpleRecognitionStrategy(std::vector<std::shared_ptr<Camera<HWJetson>>>& cameras) {

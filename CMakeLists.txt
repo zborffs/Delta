@@ -9,15 +9,16 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # Import Packages
-#find_package(GTest REQUIRED) # Unit-Testing Library
+find_package(GTest REQUIRED) # Unit-Testing Library
 # find_package(benchmark REQUIRED) # Benchmarking Library
 find_package(spdlog CONFIG REQUIRED) # Logging Library
 find_package(yaml-cpp REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(Matplot++ REQUIRED)
 
 
 # Include Library Directories
-#include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${YAML_CPP_INCLUDE_DIR})
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -56,7 +57,7 @@ endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -pedantic") # -Werror
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O2") # -O3
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g") # -O3
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX")
@@ -93,11 +94,16 @@ set(DELTA_LIB_SRCS
 # Create library, link external libraries to it
 add_library(Delta-lib ${DELTA_LIB_SRCS})
 set_target_properties(Delta-lib PROPERTIES PREFIX "")
-target_link_libraries(Delta-lib Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS})
+target_link_libraries(Delta-lib Matplot++::matplot Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS})
 target_include_directories(Delta-lib PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${SPDLOG_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
 
 # Create main executable
 add_executable(Delta src/main.cpp)
-target_link_libraries(Delta Delta-lib Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS})
+target_link_libraries(Delta Delta-lib Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS} Matplot++::matplot)
 install(TARGETS Delta DESTINATION bin)
 install(TARGETS Delta-lib ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
+
+if (BUILD_TESTS)
+    message("-- Building tests")
+    add_subdirectory(test)
+endif()

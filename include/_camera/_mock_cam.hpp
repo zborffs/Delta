@@ -1,10 +1,12 @@
 #ifndef DELTA__MOCK_CAM_HPP
 #define DELTA__MOCK_CAM_HPP
 
+/// project includes
+#include <string>
+
 /// Third-party includes
 #include <spdlog/spdlog.h>
 #include <opencv2/opencv.hpp>
-#include <string>
 
 /// Project Includes
 #include "camera.hpp"

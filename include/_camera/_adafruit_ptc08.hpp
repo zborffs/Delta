@@ -1,16 +1,22 @@
 #ifndef DELTA__ADAFRUIT_PTC08_HPP
 #define DELTA__ADAFRUIT_PTC08_HPP
 
-#include "camera.hpp"
+/// stl includes
 #include <typeinfo>
+
+/// third-party includes
 #include <spdlog/spdlog.h>
 #include <opencv2/opencv.hpp>
+
+/// Project includes
+#include "camera.hpp"
 
 template <class THardware>
 class AdafruitPTC08 : public Camera<THardware> {
 private:
     inline static THardware hw_{};
     double x_;
+
 public:
     explicit AdafruitPTC08(double x = 0) : x_(x) {
         spdlog::get("delta_logger")->info("Created AdafruitPTC08 object (x: {})", x);
