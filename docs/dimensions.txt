@@ -1,0 +1,14 @@
+board width: 18 inches
+board length = 18 inches
+
+desired width = 18.25 inches => +/- 231.775 mm
+
+base radius = 114 mm = 4.488 inch
+bicep length = 312 mm = 12.28 inch
+forearm length = 410 mm = 16.142 inch
+end effector radius = 51 mm = 2.00 inch
+base to floor distance 562 mm = 22.126 inch
+
+width 232.51
+
+https://components101.com/motors/mg996r-servo-motor-datasheet
