@@ -2,11 +2,9 @@
 
 /**
  * the Plan AppState transforms a ChessMove best_move->std::vector<Vector3d> coordinates in the world frame
- * 1.)
- * @return
+ * @return whether the Planning component returned
  */
 bool AppStatePlan::handle() {
-    /// ask the Plan component for the set of coordinates (in the world frame) to make this move
     std::optional<int> coordinates = context_->plan_->plan_route(best_move_);
 
     /// If the returned value is std::nullopt, then the Plan component failed to determine the coordinates. So log the

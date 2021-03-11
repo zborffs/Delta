@@ -1,0 +1,11 @@
+0, l2*cos(q12)*sin(q13), l2*cos(q13)*sin(q12), (3^(1/2)*l1*sin(q21))/2, (3^(1/2)*l2*sin(q22))/2 + (l2*cos(q22)*sin(q23))/2, (l2*cos(q23)*sin(q22))/2, 0, 0, 0;
+
+-l1*sin(q11), -l2*sin(q12), 0, -(l1*sin(q21))/2, (3^(1/2)*l2*cos(q22)*sin(q23))/2 - (l2*sin(q22))/2, (3^(1/2)*l2*cos(q23)*sin(q22))/2, 0, 0, 0;
+
+l1*cos(q11), l2*cos(q12)*cos(q13), -l2*sin(q12)*sin(q13), -l1*cos(q21), -l2*cos(q22)*cos(q23), l2*sin(q22)*sin(q23), 0, 0, 0;
+
+0, l2*cos(q12)*sin(q13), l2*cos(q13)*sin(q12), 0, 0, 0, -(3^(1/2)*l1*sin(q31))/2, (l2*cos(q32)*sin(q33))/2 - (3^(1/2)*l2*sin(q32))/2, (l2*cos(q33)*sin(q32))/2;
+
+-l1*sin(q11), -l2*sin(q12), 0, 0, 0, 0, -(l1*sin(q31))/2, - (l2*sin(q32))/2 - (3^(1/2)*l2*cos(q32)*sin(q33))/2, -(3^(1/2)*l2*cos(q33)*sin(q32))/2;
+
+l1*cos(q11), l2*cos(q12)*cos(q13), -l2*sin(q12)*sin(q13), 0, 0, 0, -l1*cos(q31), -l2*cos(q32)*cos(q33), l2*sin(q32)*sin(q33)

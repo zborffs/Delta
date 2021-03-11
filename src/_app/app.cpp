@@ -12,7 +12,7 @@ void App::transition_to(AppState* state) {
 void App::rt_loop() {
     int i = 0;
     std::chrono::milliseconds period{100};
-    while (i < 1000 && !quit()) {
+    while (i < 1000 && !quit()) { // arbitrary upper limit, just a mock example
 #ifdef JETSON_BUILD
 #else
         auto start = std::chrono::high_resolution_clock::now();
@@ -32,16 +32,22 @@ void App::rt_loop() {
         }
 
 #endif // JETSON_BUILD
-
     }
 }
 
+/**
+ * returns the value of the member variable quit_ subject to synchronization bugs
+ * @return true if we should quit, false if we shouldn't quit
+ */
 bool App::quit() {
     std::lock_guard<std::mutex> guard(mu_quit_);
     spdlog::get("delta_logger")->info("Reading \"quit_\"");
     return quit_;
 }
 
+/**
+ * sets the quit_ member variable to true so that the real-time loop quits
+ */
 void App::quit_rt_loop() {
     std::lock_guard<std::mutex> guard(mu_quit_);
     spdlog::get("delta_logger")->info("Quitting RT Loop!");

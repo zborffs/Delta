@@ -14,7 +14,7 @@
  * - it transforms a ChessMove representing the best move into a series of coordinates in the world frame
  * - it is reached from the Engine state
  * - it makes use of the Plan component
- * - if successful, transitions to
+ * - if successful, transitions to wait state
  */
 class AppStatePlan : public AppState {
     int best_move_;

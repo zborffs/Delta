@@ -6,12 +6,12 @@
  */
 bool AppStateInit::handle() {
     /// Initialize Application from configuration file
-    init_cameras(); // Start by initializing the Camera objects
-    init_state_estimator(); // Start by initializing the State Estimator
-    init_engine(); // Initialize the Chess Engine
-    init_plan(); // Initialize Route Planning Algorithm
-    init_controller(); // Initialize the Controller
-    init_recognition(); // Initialize Recognition Component
+    init_cameras();
+    init_state_estimator();
+    init_engine();
+    init_plan();
+    init_controller();
+    init_recognition();
 
 #ifndef NDEBUG
     for (auto & camera : cameras_) {
@@ -25,11 +25,11 @@ bool AppStateInit::handle() {
 
     /// Transition to the next state and return true to stay within App's 'main' loop
     context_->transition_to(new AppStateRecognition);
-    return true; // return true if successful
+    return true;
 }
 
 /**
- *
+ * initializes the camera objects
  */
 void AppStateInit::init_cameras() {
     auto camera_config = context_->config_file()["Cameras"];
@@ -87,37 +87,25 @@ void AppStateInit::init_state_estimator() {
     auto se_config = context_->config_file()["StateEstimator"]; // get "StateEstimator" YAML map
     std::unique_ptr<StateEstimatorBuilder> builder; // declare abstract builder unique pointer, dynamically define later
 
-    /// if the "StateEstimator" or "StateEstimator:type" tags don't occur, then default build the UnscentedKalmanFilter
     if (!se_config.IsDefined() || !se_config["type"].IsDefined()) {
         spdlog::get("delta_logger")->warn(
                 R"(Either "StateEstimator" or "StateEstimator:type" not specified.
                         Creating Unscented Kalman Filter by default)");
         builder = std::make_unique<UnscentedKalmanFilterBuilder>(se_config);
-    }
-    /// if the "StateEstimator and "StateEstimator:type" tags occur, then define the builder based on "type" tag
-    else if (se_config["type"].as<std::string>() == "UnscentedKalmanFilter") {
+    } else if (se_config["type"].as<std::string>() == "UnscentedKalmanFilter") {
         builder = std::make_unique<UnscentedKalmanFilterBuilder>(se_config);
     } else if (se_config["type"].as<std::string>() == "ExtendedKalmanFilter") {
         builder = std::make_unique<ExtendedKalmanFilterBuilder>(se_config);
-    }
-    /// if the "StateEstimator:type" tag doesn't match one of the predefined choices, then default build the
-    /// UnscentedKalmanFilter
-    else {
+    } else {
         spdlog::get("delta_logger")->warn(
                 R"(StateEstimator "type" tag does not match a predefined "type".
                     Creating Unscented Kalman Filter by default)");
         builder = std::make_unique<UnscentedKalmanFilterBuilder>(se_config);
     }
 
-    /// build the "Pose" object
     builder->build_pose(cameras_);
-
-    /// build the IMU objects
     builder->build_imu();
-
-    /// populate the App's StateEstimator object with the builder's product
     context_->se_ = builder->get_product();
-
     assert(cameras_[0].use_count() == 2);
 }
 
@@ -125,30 +113,22 @@ void AppStateInit::init_state_estimator() {
  * Initializes the Engine component
  */
 void AppStateInit::init_engine() {
-    auto eng_config = context_->config_file()["Engine"]; // get "Engine" YAML map
-    std::unique_ptr<EngineBuilder> builder; // declare abstract builder unique pointer, dynamically define later
+    auto eng_config = context_->config_file()["Engine"];
+    std::unique_ptr<EngineBuilder> builder;
 
-    /// if the "Engine" or "Engine:type" tags don't occur, then default build the UCIAdapter
     if (!eng_config.IsDefined() || !eng_config["type"].IsDefined()) {
         spdlog::get("delta_logger")->warn(
                 R"(Either "Engine" or "Engine:type" not specified. Creating UCI Adapter by default)");
         builder = std::make_unique<UCIEngineBuilder>(eng_config);
-    }
-    /// if the "Engine: type" is specified, define corresponding type's builder
-    else if (eng_config["type"].as<std::string>() == std::string("UCIEngine")) {
+    } else if (eng_config["type"].as<std::string>() == std::string("UCIEngine")) {
         builder = std::make_unique<UCIEngineBuilder>(eng_config);
-    }
-    /// if the "Engine:type" tag doesn't match one of the predefined tags, then default build the UCIAdapter
-    else {
+    } else {
         spdlog::get("delta_logger")->warn(
                 "\"Engine:type\" does not match a predefined type. Creating UCI Adapter by Default");
         builder = std::make_unique<UCIEngineBuilder>(eng_config);
     }
 
-    /// Start-up engine by providing engine's options
     builder->startup_engine();
-
-    /// populate the App's Engine object with the builder's product
     context_->engine_ = builder->get_product();
 }
 
@@ -196,6 +176,9 @@ void AppStateInit::init_controller() {
     context_->control_ = builder->get_product();
 }
 
+/**
+ * initializes the recognition component
+ */
 void AppStateInit::init_recognition() {
     auto recog_config = context_->config_file()["Recognition"];
     std::unique_ptr<Recognition> recog_strat;

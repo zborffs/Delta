@@ -46,4 +46,4 @@ public:
     std::optional<std::string> position() override;
 };
 
-#endif //DELTA__SIMPLE_RECOGNITION_STRATEGY_HPP
+#endif // DELTA__SIMPLE_RECOGNITION_STRATEGY_HPP

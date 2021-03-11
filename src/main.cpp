@@ -67,11 +67,11 @@ int main([[maybe_unused]]const int argc, char** argv) {
     }
 
     /// Setup the Application and the gRPC server
-    App app(config_file, std::make_unique<AppStateInit>()); // instantiate the application
-    gRPCServer server(&app); // use the App object to instantiate gRPC server object
-    std::thread grpc_server_thread(server); // spin a thread to handle all gRPC server requests
-    app(); // start the application
-    grpc_server_thread.join(); // before exiting the application, be sure to join the thread!
+    App app(config_file, std::make_unique<AppStateInit>());
+    gRPCServer server(&app);
+    std::thread grpc_server_thread(server);
+    app();
+    grpc_server_thread.join();
 
     return 0;
 }

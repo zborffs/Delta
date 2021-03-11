@@ -11,7 +11,7 @@ find_package(Threads REQUIRED)
 # Import Packages
 find_package(GTest REQUIRED) # Unit-Testing Library
 # find_package(benchmark REQUIRED) # Benchmarking Library
-find_package(spdlog CONFIG REQUIRED) # Logging Library
+find_package(spdlog REQUIRED) # Logging Library
 find_package(yaml-cpp REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Matplot++ REQUIRED)
@@ -66,29 +66,29 @@ endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "G
 
 # Put all source files excluding main.cpp into library source variable
 set(DELTA_LIB_SRCS
-    src/_app/app.cpp
-    src/_app/_app_state_init.cpp
-    src/_app/_app_state_eng.cpp
-    src/_app/_app_state_recognition.cpp
-    src/_app/_app_state_plan.cpp
-    src/_app/_app_state_wait.cpp
-    src/_app/_app_state_shutdown.cpp
-    src/_se/_unscented_kalman.cpp
-    src/_se/_extended_kalman.cpp
-    src/_se/state_estimator_builder.cpp
-    src/_engine/_uci_adapter.cpp
-    src/_engine/engine_builder.cpp
-    src/_plan/plan_builder.cpp
-    src/_plan/_simple_plan_alg.cpp
-    src/_control/_linear.cpp
-    src/_control/_optimal.cpp
-    src/_control/controller_builder.cpp
-    src/_recog/_simple_recognition_strategy.cpp
-    src/_grpc/grpc_server.cpp
-    src/_model/_simple_delta_model.cpp
-    src/_pose/_simple_pose_strategy.cpp
-    src/_hw/_hw_mock.cpp
-    src/_hw/_hw_jetson.cpp
+        src/_app/app.cpp
+        src/_app/_app_state_init.cpp
+        src/_app/_app_state_eng.cpp
+        src/_app/_app_state_recognition.cpp
+        src/_app/_app_state_plan.cpp
+        src/_app/_app_state_wait.cpp
+        src/_app/_app_state_shutdown.cpp
+        src/_se/_unscented_kalman.cpp
+        src/_se/_extended_kalman.cpp
+        src/_se/state_estimator_builder.cpp
+        src/_engine/_uci_adapter.cpp
+        src/_engine/engine_builder.cpp
+        src/_plan/plan_builder.cpp
+        src/_plan/_simple_plan_alg.cpp
+        src/_control/_linear.cpp
+        src/_control/_optimal.cpp
+        src/_control/controller_builder.cpp
+        src/_recog/_simple_recognition_strategy.cpp
+        src/_grpc/grpc_server.cpp
+        src/_model/_simple_delta_model.cpp
+        src/_pose/_simple_pose_strategy.cpp
+        src/_hw/_hw_mock.cpp
+        src/_hw/_hw_jetson.cpp
 )
 
 # Create library, link external libraries to it
