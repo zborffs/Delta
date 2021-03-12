@@ -1,6 +1,6 @@
 %% Perform Symbolic Calculations for Delta Robot
 %% Clear Previous workspace and Declare Symbolic Variables
-clear all
+% clear all
 syms q11 q12 q13 q11dot q12dot q13dot q11ddot q12ddot q13ddot real
 syms q21 q22 q23 q21dot q22dot q23dot q21ddot q22ddot q23ddot real
 syms q31 q32 q33 q31dot q32dot q33dot q31ddot q32ddot q33ddot real
@@ -24,8 +24,7 @@ qddot = [q11ddot; q12ddot; q13ddot; q21ddot; q22ddot; q23ddot; q31ddot; q32ddot;
 syms l1 l2 real % lengths of link 1 and link 2 (m)
 syms m1 m2 m3 real % masses of link 1, link 2 and end-effector (kg)
 syms g real % gravity (m/s^2)
-%syms r_base real % radius of base
-r_base = 0.25;
+syms r_base r_platform real % radius of base
 lc1 = l1 / 2; % distance to center of mass along link 1 (m)
 lc2 = l2 / 2; % distance to center of mass along link 2 (m)
 J1 = m1 * l1^2 / 12.0; % inertia link 1 (assuming rod) -> 1/3
@@ -103,8 +102,8 @@ L3 = T3 - V3;
 %% Declare Holonomic Constraint
 Rz_2pi3 = rot_z(2 * pi / 3); % Rotation by 1/3 circle about z-axis
 Rz_neg_2pi3 = rot_z(-2 * pi / 3);  % Rotation by 1/3 circle about z-axis
-h1 = xc13 - Rz_neg_2pi3 * xc23; % holonomic constraint 1
-h2 = xc13 - Rz_2pi3 * xc33; % holonomic constraint 2
+h1 = xc13 - [0;r_platform;0] - Rz_neg_2pi3 * (xc23 - [0;r_platform;0]); % holonomic constraint 1
+h2 = xc13 - [0;r_platform;0] -     Rz_2pi3 * (xc33 - [0;r_platform;0]); % holonomic constraint 2
 h = [h1; h2];  % organize constraints into single 6x1 vector
 H = jacobian(h, q); % Jacobian of holonomic constraints
 syms lambda1 lambda2 lambda3 lambda4 lambda5 lambda6 real % declare lagrangian multipliers
@@ -159,10 +158,10 @@ Dmid = D(4:6, 4:6);
 Dbot = D(7:9, 7:9);
 
 %% Write Matrices to File
-% writematrix(char(Dtop), "../data/Dtop.txt");
-% writematrix(char(Dmid), "../data/Dmid.txt");
-% writematrix(char(Dbot), "../data/Dbot.txt");
-% writematrix(char(Hdot), "../data/Hdot.txt");
-% writematrix(   char(h), "../data/h_lower.txt");
-% writematrix(   char(b), "../data/b.txt");
-% writematrix(   char(H), "../data/H_upper.txt");
+% writematrix(char(Dtop), "../../res/mat_data/Dtop_base.txt");
+% writematrix(char(Dmid), "../../res/mat_data/Dmid_base.txt");
+% writematrix(char(Dbot), "../../res/mat_data/Dbot_base.txt");
+% writematrix(char(Hdot), "../../res/mat_data/Hdot_base.txt");
+% writematrix(   char(h), "../../res/mat_data/h_lower_base.txt");
+% writematrix(   char(b), "../../res/mat_data/b_base.txt");
+% writematrix(   char(H), "../../res/mat_data/H_upper_base.txt");

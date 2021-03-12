@@ -18,7 +18,7 @@ function transform_to_cartesian(t, phi1, phi2, phi3, p)
 
     # end of link 1
     x1 = zeros(length(t))
-    y1 = l1 * cos.(phi1)
+    y1 = l1 * cos.(phi1) .+ p.rb
     z1 = l1 * sin.(phi1)
 
     # end of link 2 (end-effector)
@@ -63,9 +63,9 @@ delta robot parameters
 function animate_robot(sol, p)
     gr()
     t = sol.t;
-    x11, y11, z11, x12, y12, z12 = transform_to_cartesian(sol[1,:], sol[2,:], sol[3,:], p)
-    x21, y21, z21, x22, y22, z22 = transform_to_cartesian(sol[4,:], sol[5,:], sol[6,:], p)
-    x31, y31, z31, x32, y32, z32 = transform_to_cartesian(sol[7,:], sol[8,:], sol[9,:], p)
+    x11, y11, z11, x12, y12, z12 = transform_to_cartesian(sol.t, sol[1,:], sol[2,:], sol[3,:], p)
+    x21, y21, z21, x22, y22, z22 = transform_to_cartesian(sol.t, sol[4,:], sol[5,:], sol[6,:], p)
+    x31, y31, z31, x32, y32, z32 = transform_to_cartesian(sol.t, sol[7,:], sol[8,:], sol[9,:], p)
 
     Rz(θ) = [cos(θ) -sin(θ) 0; sin(θ) cos(θ) 0; 0 0 1];
     x21, y21, z21 = Rz(-2 * pi / 3) * [x21, y21, z21];
@@ -73,13 +73,6 @@ function animate_robot(sol, p)
     x31, y31, z31 = Rz(2 * pi / 3) * [x31, y31, z31];
     x32, y32, z32 = Rz(2 * pi / 3) * [x32, y32, z32];
 
-    # r = 0.25;
-    # x1 = r * cos(0)
-    # y1 = r * sin(0)
-    # x2 = r * cos(-2 * pi / 3)
-    # y2 = r * sin(-2 * pi / 3)
-    # x3 = r * cos(2 * pi / 3)
-    # y3 = r * sin(2 * pi / 3)
     anim = Animation()
     for i in 1:length(sol.t)
         t_str = string("Time = ", round(sol.t[i]), " sec");
@@ -89,15 +82,6 @@ function animate_robot(sol, p)
         plot3d!([-x21[i],-x22[i]], [-y21[i],-y22[i]], [-z21[i], -z22[i]], markersize=5, markershape = :circle);
         plot3d!([0,-x31[i]], [0,-y31[i]], [0, -z31[i]], markersize = 5, markershape=:circle);
         plot3d!([-x31[i],-x32[i]], [-y31[i],-y32[i]], [-z31[i], -z32[i]], markersize=5, markershape = :circle);
-
-
-        # p2 = plot3d([0,-y1[i]], [0,-x1[i]], [0, -z1[i]], size=(400,300), xlim=(-1,1), ylim=(-0.75,0.75), zlim=(-1, 0.25), markersize = 5, markershape=:circle, camera = (0, 0))
-        # plot3d!(p2, [-y1[i],-y2[i]], [-x1[i],-x2[i]], [-z1[i], -z2[i]], markersize=5, markershape = :circle, aspect_ratio=:auto)
-        #
-        # p3 = plot3d([0,-y1[i]], [0,-x1[i]], [0, -z1[i]], size=(400,300), xlim=(-1,1), ylim=(-0.75,0.75), zlim=(-1, 0.25), markersize = 5, markershape=:circle, camera = (0, 90))
-        # plot3d!(p3, [-y1[i],-y2[i]], [-x1[i],-x2[i]], [-z1[i], -z2[i]], markersize=5, markershape = :circle, aspect_ratio=:auto)
-        #
-        # p = plot(p1, p2, p3, layout=(1,3), size=(1200, 300), legend=:none)
         frame(anim, p1)
     end
 

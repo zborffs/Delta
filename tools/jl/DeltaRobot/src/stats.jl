@@ -4,7 +4,7 @@ using Statistics, StatsBase
 TABLE_HEADER = ["Statistic", "N", "Mean", "Min", "25 Percentile", "Median", "75 Percentile", "Max", "Standard Deviation", "Skewness", "Kurtosis"]
 
 """
-summary_data(name, data) computes the summary statistics of a given data set
+computes the summary statistics of a given data set
 """
 function summary_data(name, data)
         n = length(data)
