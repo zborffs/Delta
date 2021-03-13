@@ -36,7 +36,7 @@ delta robot parameters
 function animate_arm(sol, p)
     gr()
     t = sol.t
-    x1, y1, z1, x2, y2, z2 = transform_to_cartesian(sol.t, sol[1,:], sol[2,:], sol[3,:], p)
+    x1, y1, z1, x2, y2, z2 = transform_to_cartesian(t, sol[1,:], sol[2,:], sol[3,:], p)
 
     anim = Animation()
     for i in 1:length(t)
@@ -76,13 +76,29 @@ function animate_robot(sol, p)
     anim = Animation()
     for i in 1:length(sol.t)
         t_str = string("Time = ", round(sol.t[i]), " sec");
-        p1 = plot3d([0,-x11[i]], [0,-y11[i]], [0.0, -z11[i]], size=(400,300), xlim=(-1,1), ylim=(-1,1), zlim=(-1, 1), markersize = 5, markershape=:circle, camera = (45, 60), legend=:none);
-        plot3d!([-x11[i],-x12[i]], [-y11[i],-y12[i]], [-z11[i], -z12[i]], markersize=5, markershape = :circle, title = t_str, title_location=:left, aspect_ratio=:auto);
-        plot3d!([0,-x21[i]], [0,-y21[i]], [0, -z21[i]], markersize = 5, markershape=:circle);
-        plot3d!([-x21[i],-x22[i]], [-y21[i],-y22[i]], [-z21[i], -z22[i]], markersize=5, markershape = :circle);
-        plot3d!([0,-x31[i]], [0,-y31[i]], [0, -z31[i]], markersize = 5, markershape=:circle);
-        plot3d!([-x31[i],-x32[i]], [-y31[i],-y32[i]], [-z31[i], -z32[i]], markersize=5, markershape = :circle);
-        frame(anim, p1)
+        p1 = plot3d([0,-x11[i]], [-p.rb,-y11[i]], [0.0, -z11[i]], size=(400,300), xlim=(-1,1), ylim=(-1,1), zlim=(-1, 1), markersize = 5, markershape=:circle, camera = (45, 60), legend=:none, linecolor=:blue, markercolor=:blue);
+        plot3d!([-x11[i],-x12[i]], [-y11[i],-y12[i]], [-z11[i], -z12[i]], markersize=5, markershape = :circle, title = t_str, title_location=:left, aspect_ratio=:auto, linecolor=:blue, markercolor=:blue);
+        plot3d!([-p.rb * -sin(-2 * pi / 3),-x21[i]], [-p.rb * cos(-2 * pi / 3),-y21[i]], [0, -z21[i]], markersize = 5, markershape=:circle, linecolor=:red, markercolor=:red);
+        plot3d!([-x21[i],-x22[i]], [-y21[i],-y22[i]], [-z21[i], -z22[i]], markersize=5, markershape = :circle, linecolor=:red, markercolor=:red);
+        plot3d!([-p.rb * -sin(2 * pi / 3),-x31[i]], [-p.rb * cos(2 * pi / 3),-y31[i]], [0, -z31[i]], markersize = 5, markershape=:circle, linecolor=:green, markercolor=:green);
+        plot3d!([-x31[i],-x32[i]], [-y31[i],-y32[i]], [-z31[i], -z32[i]], markersize=5, markershape = :circle, linecolor=:green, markercolor=:green);
+
+        p2 = plot3d([0,-x11[i]], [-p.rb,-y11[i]], [0.0, -z11[i]], size=(400,300), xlim=(-1,1), ylim=(-1,1), zlim=(-1, 1), markersize = 5, markershape=:circle, camera = (0, 0), legend=:none, linecolor=:blue, markercolor=:blue);
+        plot3d!([-x11[i],-x12[i]], [-y11[i],-y12[i]], [-z11[i], -z12[i]], markersize=5, markershape = :circle, aspect_ratio=:auto, linecolor=:blue, markercolor=:blue);
+        plot3d!([-p.rb * -sin(-2 * pi / 3),-x21[i]], [-p.rb * cos(-2 * pi / 3),-y21[i]], [0, -z21[i]], markersize = 5, markershape=:circle, linecolor=:red, markercolor=:red);
+        plot3d!([-x21[i],-x22[i]], [-y21[i],-y22[i]], [-z21[i], -z22[i]], markersize=5, markershape = :circle, linecolor=:red, markercolor=:red);
+        plot3d!([-p.rb * -sin(2 * pi / 3),-x31[i]], [-p.rb * cos(2 * pi / 3),-y31[i]], [0, -z31[i]], markersize = 5, markershape=:circle, linecolor=:green, markercolor=:green);
+        plot3d!([-x31[i],-x32[i]], [-y31[i],-y32[i]], [-z31[i], -z32[i]], markersize=5, markershape = :circle, linecolor=:green, markercolor=:green);
+
+        p3 = plot3d([0,-x11[i]], [-p.rb,-y11[i]], [0.0, -z11[i]], size=(400,300), xlim=(-1,1), ylim=(-1,1), zlim=(-1, 1), markersize = 5, markershape=:circle, camera = (0, 90), legend=:none, linecolor=:blue, markercolor=:blue);
+        plot3d!([-x11[i],-x12[i]], [-y11[i],-y12[i]], [-z11[i], -z12[i]], markersize=5, markershape = :circle, aspect_ratio=:auto, linecolor=:blue, markercolor=:blue);
+        plot3d!([-p.rb * -sin(-2 * pi / 3),-x21[i]], [-p.rb * cos(-2 * pi / 3),-y21[i]], [0, -z21[i]], markersize = 5, markershape=:circle, linecolor=:red, markercolor=:red);
+        plot3d!([-x21[i],-x22[i]], [-y21[i],-y22[i]], [-z21[i], -z22[i]], markersize=5, markershape = :circle, linecolor=:red, markercolor=:red);
+        plot3d!([-p.rb * -sin(2 * pi / 3),-x31[i]], [-p.rb * cos(2 * pi / 3),-y31[i]], [0, -z31[i]], markersize = 5, markershape=:circle, linecolor=:green, markercolor=:green);
+        plot3d!([-x31[i],-x32[i]], [-y31[i],-y32[i]], [-z31[i], -z32[i]], markersize=5, markershape = :circle, linecolor=:green, markercolor=:green);
+
+        plt = plot(p1, p2, p3, layout=(1,3), size=(1500, 350), legend=:none)
+        frame(anim, plt)
     end
 
     return anim
