@@ -1,6 +1,6 @@
 %% Perform Symbolic Calculations for Delta Robot
 %% Clear Previous workspace and Declare Symbolic Variables
-% clear all
+clear all
 syms q11 q12 q13 q11dot q12dot q13dot q11ddot q12ddot q13ddot real
 syms q21 q22 q23 q21dot q22dot q23dot q21ddot q22ddot q23ddot real
 syms q31 q32 q33 q31dot q32dot q33dot q31ddot q32ddot q33ddot real
@@ -18,7 +18,6 @@ q3ddot = [q31ddot; q32ddot; q33ddot]; % acceleration of arm 3
 q = [q11; q12; q13; q21; q22; q23; q31; q32; q33]; % overall position
 qdot = [q11dot; q12dot; q13dot; q21dot; q22dot; q23dot; q31dot; q32dot; q33dot]; % overall velocity
 qddot = [q11ddot; q12ddot; q13ddot; q21ddot; q22ddot; q23ddot; q31ddot; q32ddot; q33ddot]; % overall acceleration
-
 
 %% Declare Model Parameters
 syms l1 l2 real % lengths of link 1 and link 2 (m)
@@ -118,9 +117,9 @@ dtdLdqdot = jacobian(dLdqdot, [q;qdot]) * [qdot; qddot];
 dLdq      = jacobian(L, q)';
 EL = simplify(dtdLdqdot - dLdq); % Euler-Lagrange Equation
  
-%% Determine Standard Representation from Euler-Lagrange Equation (D*qddot + C(q, qdot) + G(q) = lambda' * H)
-[D, b] = equationsToMatrix(EL, qddot);
-D = simplify(D);
+%% Determine Standard Representation from Euler-Lagrange Equation (M*qddot + C(q, qdot) + G(q) = lambda' * H) -> Mqqdot + C + G = lambda' H + Bu -> G = lambda' * H + Bu -> choose u s.t. u = G(1) - lambda' * H (eq 24.) Mbar_y
+[M, b] = equationsToMatrix(EL, qddot);
+M = simplify(M);
 b = simplify(b); % External Forces: -b == C + G - lambda' * H
 
 %% Take derivative w.r.t time of H
@@ -144,18 +143,18 @@ H9 = H(:, 9);
 H9dot = jacobian(H9, q) * qdot;
 Hdot = [H1dot, H2dot, H3dot, H4dot, H5dot, H6dot, H7dot, H8dot, H9dot];
 
-%% Perform Baumgarte Index Reduction
-% z0 = h; % z0 vector (6x1)
-% z1 = H * qdot; % z0dot == z1 vector (6x9 x 9x1 = 6x1)
-% z2 = Hdot * qdot + H * (D \ b); % 6x9 * 9x1 + 6x9 * 9x1 = 6x1 + 6x1 = 6x1
+% Perform Baumgarte Index Reduction
+z0 = h; % z0 vector (6x1)
+z1 = H * qdot; % z0dot == z1 vector (6x9 x 9x1 = 6x1)
+z2 = Hdot * qdot + H * (M \ b); % 6x9 * 9x1 + 6x9 * 9x1 = 6x1 + 6x1 = 6x1
 
-% dae1_holonomic = simplify(z0 + z1 + z2);
+dae1_holonomic = simplify(z0 + z1 + z2);
 % writematrix(dae1_holonomic, "../data/dae1_holonomic.txt");
 
 %% Determine the Sub-Inertia Matrices
-Dtop = D(1:3, 1:3);
-Dmid = D(4:6, 4:6);
-Dbot = D(7:9, 7:9);
+Mtop = M(1:3, 1:3);
+Mmid = M(4:6, 4:6);
+Mbot = M(7:9, 7:9);
 
 %% Write Matrices to File
 % writematrix(char(Dtop), "../../res/mat_data/Dtop_base.txt");

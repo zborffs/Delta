@@ -1,9 +1,9 @@
 %% Perform Symbolic Calculations for Delta Robot
 %% Clear Previous workspace and Declare Symbolic Variables
 clear all
-syms q11 q12 q13 q11dot q12dot q13dot q11ddot q12ddot q13ddot real
-syms q21 q22 q23 q21dot q22dot q23dot q21ddot q22ddot q23ddot real
-syms q31 q32 q33 q31dot q32dot q33dot q31ddot q32ddot q33ddot real
+syms q11 q12 q13 q11dot q12dot q13dot real
+syms q21 q22 q23 q21dot q22dot q23dot real
+syms q31 q32 q33 q31dot q32dot q33dot real
 syms p11 p12 p13 p11dot p12dot p13dot real
 syms p21 p22 p23 p21dot p22dot p23dot real
 syms p31 p32 p33 p31dot p32dot p33dot real
@@ -12,22 +12,18 @@ syms p31 p32 p33 p31dot p32dot p33dot real
 %% Organize symbols into vectors
 q1 = [q11; q12; q13]; % position of arm 1
 q1dot = [q11dot; q12dot; q13dot]; % velocity of arm 1
-q1ddot = [q11ddot; q12ddot; q13ddot]; % acceleration of arm 1
 p1 = [p11; p12; p13];
 p1dot = [p11dot; p12dot; p13dot];
 q2 = [q21; q22; q23]; % position of arm 2
 q2dot = [q21dot; q22dot; q23dot]; % velocity of arm 2
-q2ddot = [q21ddot; q22ddot; q23ddot]; % acceleration of arm 2
 p2 = [p21; p22; p23];
 p2dot = [p21dot; p22dot; p23dot];
 q3 = [q31; q32; q33]; % position of arm 3
 q3dot = [q31dot; q32dot; q33dot]; % velocity of arm 3
-q3ddot = [q31ddot; q32ddot; q33ddot]; % acceleration of arm 3
 p2 = [p31; p32; p33];
 p2dot = [p31dot; p32dot; p33dot];
 q = [q11; q12; q13; q21; q22; q23; q31; q32; q33]; % overall position
 qdot = [q11dot; q12dot; q13dot; q21dot; q22dot; q23dot; q31dot; q32dot; q33dot]; % overall velocity
-qddot = [q11ddot; q12ddot; q13ddot; q21ddot; q22ddot; q23ddot; q31ddot; q32ddot; q33ddot]; % overall acceleration
 p = [p11; p12; p13; p21; p22; p23; p31; p32; p33]; 
 pdot = [p11dot; p12dot; p13dot; p21dot; p22dot; p23dot; p31dot; p32dot; p33];
 
@@ -59,11 +55,12 @@ xc13 = [l2 * sin(phi2) * sin(phi3); r_base + l1 * cos(phi1) + l2 * cos(phi2); l1
 xc13dot = diff(xc13, phi1) * phi1dot + diff(xc13, phi2) * phi2dot + diff(xc13, phi3) * phi3dot; % Velocity of Center of Mass of End-Effector of Arm 1 in Cartesian Coordinates
 
 % Kinetic & Potential Energies of Arm 1
-T1 = 1/2 * m1 * xc11dot' * xc11dot + 1/2 * m2 * xc12dot' * xc12dot + 1/6 * m3 * xc13dot' * xc13dot + 1/2 * J1 * phi1dot^2 + 1/2 * J2 * (sin(phi2)^2 * phi3dot^2 + phi2dot^2); % Kinetic
+T1 = 1/2 * p11' * p11 / m1 + 1/2 * p12' * p12 / m2 + 1/6 * p13' * p13 / m3 + 1/2 * J1 * p11' * p11 / m1^2 + 1/2 * J2 * (sin(phi2)^2 * p13' * p13 / m3^2 + p12' * p12 / m2^2); % Kinetic
 V1 = -g * ((lc1 * m1 + l1 * (m2 + m3 / 3)) * sin(phi1) + (lc2 * m2 + l2 * m3 / 3) * sin(phi2) * cos(phi3)); % Potential
 
 % Lagrangian of Arm 1
 L1 = T1 - V1;
+H1 = T1 + V1;
 
 %% Compute Lagrangian for Second Arm
 phi1 = q2(1);
@@ -82,11 +79,12 @@ xc23 = [l2 * sin(phi2) * sin(phi3); r_base + l1 * cos(phi1) + l2 * cos(phi2); l1
 xc23dot = diff(xc23, phi1) * phi1dot + diff(xc23, phi2) * phi2dot + diff(xc23, phi3) * phi3dot;
 
 % Kinetic & Potential Energies
-T2 = 1/2 * m1 * xc21dot' * xc21dot + 1/2 * m2 * xc22dot' * xc22dot + 1/6 * m3 * xc23dot' * xc23dot + 1/2 * J1 * phi1dot^2 + 1/2 * J2 * (sin(phi2)^2 * phi3dot^2 + phi2dot^2); % Kinetic
+T2 = 1/2 * p21' * p21 / m1 + 1/2 * p22' * p22 / m2 + 1/6 * p23' * p23 / m3 + 1/2 * J1 * p21' * p21 / m1^2 + 1/2 * J2 * (sin(phi2)^2 * p23' * p23 / m3^2 + p22' * p22 / m2^2); % Kinetic
 V2 = -g * ((lc1 * m1 + l1 * (m2 + m3 / 3)) * sin(phi1) + (lc2 * m2 + l2 * m3 / 3) * sin(phi2) * cos(phi3)); % Potential
 
 % Lagrangian
 L2 = T2 - V2;
+H2 = T2 + V2;
 
 %% Compute Lagrangian of Third Arm
 phi1 = q3(1);
@@ -105,11 +103,12 @@ xc33 = [l2 * sin(phi2) * sin(phi3); r_base + l1 * cos(phi1) + l2 * cos(phi2); l1
 xc33dot = diff(xc33, phi1) * phi1dot + diff(xc33, phi2) * phi2dot + diff(xc33, phi3) * phi3dot;
 
 % Kinetic & Potential Energy
-T3 = 1/2 * m1 * xc31dot' * xc31dot + 1/2 * m2 * xc32dot' * xc32dot + 1/6 * m3 * xc33dot' * xc33dot + 1/2 * J1 * phi1dot^2 + 1/2 * J2 * (sin(phi2)^2 * phi3dot^2 + phi2dot^2); % Kinetic
+T3 = 1/2 * p31' * p31 / m1 + 1/2 * p32' * p32 / m2 + 1/6 * p33' * p33 / m3 + 1/2 * J1 * p31' * p31 / m1^2 + 1/2 * J2 * (sin(phi2)^2 * p33' * p33 / m3^2 + p32' * p32 / m2^2); % Kinetic
 V3 = -g * ((lc1 * m1 + l1 * (m2 + m3 / 3)) * sin(phi1) + (lc2 * m2 + l2 * m3 / 3) * sin(phi2) * cos(phi3)); % Potential
 
 % Lagrangian
 L3 = T3 - V3;
+H3 = T3 + V3;
 
 %% Declare Holonomic Constraint
 Rz_2pi3 = rot_z(2 * pi / 3); % Rotation by 1/3 circle about z-axis
@@ -122,86 +121,56 @@ syms lambda1 lambda2 lambda3 lambda4 lambda5 lambda6 real % declare lagrangian m
 lambda = [lambda1 lambda2 lambda3 lambda4 lambda5 lambda6]'; % organize lagrangian multipliers into vector
 
 Lu = L1 + L2 + L3; % add the lagrangians into single unconstrained lagrangian
+Hu = H1 + H2 + H3;
 L = Lu + lambda' * h; % constrain lagrangian with addition of holonomic constraint * lagrangian multipliers
+H = Hu + lambda' * h;
 
-%% Transform Lagrangians into the Euler-Lagrange Equation
-dLdqdot   = jacobian(L, qdot)'; % value of p
-dtdLdqdot = jacobian(dLdqdot, [q;qdot]) * [qdot; qddot];
-dLdq      = jacobian(L, q)';
-EL = simplify(dtdLdqdot - dLdq); % Euler-Lagrange Equation
-[M, b] = equationsToMatrix(EL, qddot);
-M = simplify(M);
-b = simplify(b); % External Forces: -b == C + G - lambda' * HM
-
-[X, Y] = equationsToMatrix(dLdqdot, qdot); % Y is all zeros. X * qdot = p -> qdot = invX * p
-X = simplify(X);
-Xtop = X(1:3, 1:3);
-Xmid = X(4:6, 4:6);
-Xbot = X(7:9, 7:9);
-invXtop = inv(Xtop);
-invXmid = inv(Xmid);
-invXbot = inv(Xbot);
-invX = [
-    invXtop(1,:) 0 0 0 0 0 0;
-    invXtop(2,:) 0 0 0 0 0 0;
-    invXtop(2,:) 0 0 0 0 0 0;
-    0 0 0 invXmid(1,:) 0 0 0;
-    0 0 0 invXmid(2,:) 0 0 0;
-    0 0 0 invXmid(2,:) 0 0 0;
-    0 0 0 0 0 0 invXtop(1,:);
-    0 0 0 0 0 0 invXtop(2,:);
-    0 0 0 0 0 0 invXtop(2,:)
-];
-invX = simplify(invX);
-
-%% Determine Hamiltonian and Hamilton's Equations from Lagrangian
-Hamiltonian = qdot' * p - L; % Hamiltonian
-dpdt = -jacobian(Hamiltonian, q)'; % Hamilton's First Equation -- Question: Should this be '-jacobian(Hamiltonian, q) * qdot;'? ChainRule?
-dpdt = simplify(dpdt);
-dqdt = invX * p;
-dqdt = simplify(dqdt);
+%% Transform Hamiltonian into 1st and 2nd Hamilton Equations
+pdot = simplify(jacobian(Hu, q)');
+pdotu = simplify(jacobian(Hu + lambda' * h, q)');
+qdot = simplify(jacobian(Hu, p)');
 
 %% Take derivative w.r.t time of H
-H1 = H(:, 1);
-H1dot = jacobian(H1, q) * qdot;
-H2 = H(:, 2);
-H2dot = jacobian(H2, q) * qdot;
-H3 = H(:, 3);
-H3dot = jacobian(H3, q) * qdot;
-H4 = H(:, 4);
-H4dot = jacobian(H4, q) * qdot;
-H5 = H(:, 5);
-H5dot = jacobian(H5, q) * qdot;
-H6 = H(:, 6);
-H6dot = jacobian(H6, q) * qdot;
-H7 = H(:, 7);
-H7dot = jacobian(H7, q) * qdot;
-H8 = H(:, 8);
-H8dot = jacobian(H8, q) * qdot;
-H9 = H(:, 9);
-H9dot = jacobian(H9, q) * qdot;
-Hdot = [H1dot, H2dot, H3dot, H4dot, H5dot, H6dot, H7dot, H8dot, H9dot];
+% H1 = H(:, 1);
+% H1dot = jacobian(H1, q) * qdot;
+% H2 = H(:, 2);
+% H2dot = jacobian(H2, q) * qdot;
+% H3 = H(:, 3);
+% H3dot = jacobian(H3, q) * qdot;
+% H4 = H(:, 4);
+% H4dot = jacobian(H4, q) * qdot;
+% H5 = H(:, 5);
+% H5dot = jacobian(H5, q) * qdot;
+% H6 = H(:, 6);
+% H6dot = jacobian(H6, q) * qdot;
+% H7 = H(:, 7);
+% H7dot = jacobian(H7, q) * qdot;
+% H8 = H(:, 8);
+% H8dot = jacobian(H8, q) * qdot;
+% H9 = H(:, 9);
+% H9dot = jacobian(H9, q) * qdot;
+% Hdot = [H1dot, H2dot, H3dot, H4dot, H5dot, H6dot, H7dot, H8dot, H9dot];
 
 %% Perform Baumgarte Index Reduction
 % z0 = h; % z0 vector (6x1)
 % z1 = H * qdot; % z0dot == z1 vector (6x9 x 9x1 = 6x1)
-% z2 = Hdot * qdot + H * (D \ b); % 6x9 * 9x1 + 6x9 * 9x1 = 6x1 + 6x1 = 6x1
+% z2 = Hdot * qdot + H * (M \ b); % 6x9 * 9x1 + 6x9 * 9x1 = 6x1 + 6x1 = 6x1
 
 % dae1_holonomic = simplify(z0 + z1 + z2);
 % writematrix(dae1_holonomic, "../data/dae1_holonomic.txt");
 
 %% Determine the Sub-Inertia Matrices
-Mtop = M(1:3, 1:3);
-Mmid = M(4:6, 4:6);
-Mbot = M(7:9, 7:9);
-
-%% Write Matrices to File
-% writematrix(char(Dtop), "../../res/mat_data/Mtop_base.txt");
-% writematrix(char(Dmid), "../../res/mat_data/Mmid_base.txt");
-% writematrix(char(Dbot), "../../res/mat_data/Mbot_base.txt");
-% writematrix(char(Hdot), "../../res/mat_data/Hdot_base.txt");
-% writematrix(   char(h), "../../res/mat_data/h_lower_base.txt");
-% writematrix(   char(b), "../../res/mat_data/b_base.txt");
-% writematrix(   char(H), "../../res/mat_data/H_upper_base.txt");
-% writematrix(char(dpdt), "../../res/mat_data/dpdt_base.txt");
-% writematrix(char(dqdt), "../../res/mat_data/dqdt_base.txt");
+% Mtop = M(1:3, 1:3);
+% Mmid = M(4:6, 4:6);
+% Mbot = M(7:9, 7:9);
+% 
+% %% Write Matrices to File
+% % writematrix(char(Dtop), "../../res/mat_data/Mtop_base.txt");
+% % writematrix(char(Dmid), "../../res/mat_data/Mmid_base.txt");
+% % writematrix(char(Dbot), "../../res/mat_data/Mbot_base.txt");
+% % writematrix(char(Hdot), "../../res/mat_data/Hdot_base.txt");
+% % writematrix(   char(h), "../../res/mat_data/h_lower_base.txt");
+% % writematrix(   char(b), "../../res/mat_data/b_base.txt");
+% % writematrix(   char(H), "../../res/mat_data/H_upper_base.txt");
+% % writematrix(char(dpdt), "../../res/mat_data/dpdt_base.txt");
+% % writematrix(char(dqdt), "../../res/mat_data/dqdt_base.txt");
