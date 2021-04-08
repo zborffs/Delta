@@ -6,6 +6,7 @@ transforms the solution's state variables for the delta robot to cartesian
 coordinates
 """
 function transform_to_cartesian(t, phi1, phi2, phi3, p)
+    # make sure lengths of all vectors are the same
     @assert(length(t) == length(phi1))
     @assert(length(t) == length(phi2))
     @assert(length(t) == length(phi3))
@@ -32,6 +33,8 @@ end
 """
 generates an animation object from the solution to the delta robot arm IVP and
 delta robot parameters
+
+todo: turn into plot recipe and remove dependency on plots and gr()
 """
 function animate_arm(sol, p)
     gr()
@@ -59,6 +62,8 @@ end
 """
 generates an animation object from the solution to the delta robot IVP and
 delta robot parameters
+
+todo: turn into plot recipe and remove dependency on plots and gr()
 """
 function animate_robot(sol, p)
     gr()

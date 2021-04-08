@@ -7,6 +7,7 @@ syms q31 q32 q33 q31dot q32dot q33dot real
 syms p11 p12 p13 p11dot p12dot p13dot real
 syms p21 p22 p23 p21dot p22dot p23dot real
 syms p31 p32 p33 p31dot p32dot p33dot real
+syms q11ddot q12ddot q13ddot q21ddot q22ddot q23ddot q31ddot q32ddot q33ddot real
 
 
 %% Organize symbols into vectors
@@ -26,6 +27,7 @@ q = [q11; q12; q13; q21; q22; q23; q31; q32; q33]; % overall position
 qdot = [q11dot; q12dot; q13dot; q21dot; q22dot; q23dot; q31dot; q32dot; q33dot]; % overall velocity
 p = [p11; p12; p13; p21; p22; p23; p31; p32; p33]; 
 pdot = [p11dot; p12dot; p13dot; p21dot; p22dot; p23dot; p31dot; p32dot; p33];
+qddot = [q11ddot; q12ddot; q13ddot; q21ddot; q22ddot; q23ddot; q31ddot; q32ddot; q33ddot];
 
 
 %% Declare Model Parameters
@@ -122,12 +124,10 @@ lambda = [lambda1 lambda2 lambda3 lambda4 lambda5 lambda6]'; % organize lagrangi
 
 Lu = L1 + L2 + L3; % add the lagrangians into single unconstrained lagrangian
 Hu = H1 + H2 + H3;
-L = Lu + lambda' * h; % constrain lagrangian with addition of holonomic constraint * lagrangian multipliers
-H = Hu + lambda' * h;
+L = Lu + lambda' * h; % constrain lagrangian with addition of holonomic constraint * lagrangian multipliersM(
 
 %% Transform Hamiltonian into 1st and 2nd Hamilton Equations
-pdot = simplify(jacobian(Hu, q)');
-pdotu = simplify(jacobian(Hu + lambda' * h, q)');
+pdot = -simplify(jacobian(Hu, q)') + lambda' * h;
 qdot = simplify(jacobian(Hu, p)');
 
 %% Take derivative w.r.t time of H

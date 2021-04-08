@@ -116,7 +116,7 @@ dLdqdot   = jacobian(L, qdot)';
 dtdLdqdot = jacobian(dLdqdot, [q;qdot]) * [qdot; qddot];
 dLdq      = jacobian(L, q)';
 EL = simplify(dtdLdqdot - dLdq); % Euler-Lagrange Equation
- 
+
 %% Determine Standard Representation from Euler-Lagrange Equation (M*qddot + C(q, qdot) + G(q) = lambda' * H) -> Mqqdot + C + G = lambda' H + Bu -> G = lambda' * H + Bu -> choose u s.t. u = G(1) - lambda' * H (eq 24.) Mbar_y
 [M, b] = equationsToMatrix(EL, qddot);
 M = simplify(M);
@@ -148,8 +148,7 @@ z0 = h; % z0 vector (6x1)
 z1 = H * qdot; % z0dot == z1 vector (6x9 x 9x1 = 6x1)
 z2 = Hdot * qdot + H * (M \ b); % 6x9 * 9x1 + 6x9 * 9x1 = 6x1 + 6x1 = 6x1
 
-dae1_holonomic = simplify(z0 + z1 + z2);
-% writematrix(dae1_holonomic, "../data/dae1_holonomic.txt");
+% dae1_holonomic = simplify(z0 + z1 + z2);
 
 %% Determine the Sub-Inertia Matrices
 Mtop = M(1:3, 1:3);
@@ -164,3 +163,7 @@ Mbot = M(7:9, 7:9);
 % writematrix(   char(h), "../../res/mat_data/h_lower_base.txt");
 % writematrix(   char(b), "../../res/mat_data/b_base.txt");
 % writematrix(   char(H), "../../res/mat_data/H_upper_base.txt");
+
+%% Forward Kinematics Jacobian
+J = jacobian(h, [q12, q13, q22, q23, q32, q33]);
+% for_kin_matrix = J \ -h;

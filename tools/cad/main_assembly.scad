@@ -105,6 +105,7 @@ servo_mount_dimensions = [approx_servo_x, approx_servo_x_with_fins, approx_servo
 rotate([0, 0, 180]) {
     #servo_model(servo_x_offset, servo_y_offset, approx_servo_z);
 }
+
 translate([approx_jetson_x / 2 + base_radius - base_bicep_slit_depth, approx_jetson_y / 2, 0]) {
     servo_mount(servo_mount_dimensions);
 }
