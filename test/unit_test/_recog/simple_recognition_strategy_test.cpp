@@ -4,10 +4,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include "_camera/camera.hpp"
-#include "_camera/_mock_cam.hpp"
-#include "_hw/_hw_mock.hpp"
-#include "_recog/_simple_recognition_strategy.hpp"
 
 /**
  * sets up the console and log-file sinks for the logger used throughout the codebase
@@ -37,21 +33,21 @@ bool init_logger() {
 class SimpleRecognitionStrategyTester : public ::testing::Test {
 protected:
     std::string file_name_;
-    std::vector<std::shared_ptr<Camera<HWMock>>> cameras_;
-    std::unique_ptr<SimpleRecognitionStrategy> strat_;
+//    std::vector<std::shared_ptr<Camera<HWMock>>> cameras_;
+//    std::unique_ptr<SimpleRecognitionStrategy> strat_;
 
 public:
     SimpleRecognitionStrategyTester() : file_name_("../data/recog/") {
-        cameras_.emplace_back(std::make_shared<MockCamera<HWMock>>(file_name_));
-        strat_ = std::make_unique<SimpleRecognitionStrategy>(cameras_);
+//        cameras_.emplace_back(std::make_shared<MockCamera<HWMock>>(file_name_));
+//        strat_ = std::make_unique<SimpleRecognitionStrategy>(cameras_);
     }
 };
 
-TEST_F(SimpleRecognitionStrategyTester, Position) {
-    for (unsigned i = 0; i < 6; ++i) {
-        EXPECT_EQ(strat_->position(), std::nullopt);
-    }
-}
+//TEST_F(SimpleRecognitionStrategyTester, Position) {
+//    for (unsigned i = 0; i < 6; ++i) {
+//        EXPECT_EQ(strat_->position(), std::nullopt);
+//    }
+//}
 
 int main(int argc, char** argv) {
     if (!init_logger()) {

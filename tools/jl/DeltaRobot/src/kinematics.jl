@@ -3,62 +3,8 @@ using LinearAlgebra, StaticArrays
 """
 implements inverse kinematics for delta robot
 """
-function inv_kin(xe, ye, ze, p::DeltaRobotParams)
-    Rl = p.l2
-    Ru = p.l1
-    Rb = p.rb
-    Rp = p.rp
-
-    # first arm
-    f_z1_pos(z, ye, ze, Rl, Ru, Rb, Rp) = (z - ze)^2 + (Rb - Rp - ye + (Ru^2 - z^2)^(1/2))^2 - Rl^2 + xe^2
-    f_z1_neg(z, ye, ze, Rl, Ru, Rb, Rp) = (z - ze)^2 - Rl^2 + xe^2 + (Rp - Rb + ye + (Ru^2 - z^2)^(1/2))^2
-    f_z1_pos_prime(z, ye, ze, Rl, Ru, Rb, Rp) = 2*z - 2*ze - (2*z*(Rb - Rp - ye + (Ru^2 - z^2)^(1/2)))/(Ru^2 - z^2)^(1/2)
-    f_z1_neg_prime(z, ye, ze, Rl, Ru, Rb, Rp) = 2*z - 2*ze - (2*z*(Rp - Rb + ye + (Ru^2 - z^2)^(1/2)))/(Ru^2 - z^2)^(1/2)
-    f_z2_pos(z, ye, ze, Rl, Ru, Rb, Rp) = (z - ze)^2 + (xe/2 + (3^(1/2)*(Rp + ye))/2)^2 + (Rp/2 - Rb/2 + ye/2 + (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 - (3^(1/2)*xe)/2)^2 - Rl^2
-    f_z2_neg(z, ye, ze, Rl, Ru, Rb, Rp) = (z - ze)^2 + (xe/2 + (3^(1/2)*(Rp + ye))/2)^2 + (Rb/2 - Rp/2 - ye/2 + (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 + (3^(1/2)*xe)/2)^2 - Rl^2
-    f_z2_pos_prime(z, ye, ze, Rl, Ru, Rb, Rp) = 2*z - 2*ze - (4*z*(Rp/2 - Rb/2 + ye/2 + (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 - (3^(1/2)*xe)/2))/(- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)
-    f_z2_neg_prime(z, ye, ze, Rl, Ru, Rb, Rp) = 2*z - 2*ze - (4*z*(Rb/2 - Rp/2 - ye/2 + (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 + (3^(1/2)*xe)/2))/(- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)
-    f_z3_pos(z, ye, ze, Rl, Ru, Rb, Rp) = (z - ze)^2 + (xe/2 - (3^(1/2)*(Rp + ye))/2)^2 + (Rp/2 - Rb/2 + ye/2 + (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 + (3^(1/2)*xe)/2)^2 - Rl^2
-    f_z3_neg(z, ye, ze, Rl, Ru, Rb, Rp) = (z - ze)^2 + (xe/2 - (3^(1/2)*(Rp + ye))/2)^2 + (Rp/2 - Rb/2 + ye/2 - (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 + (3^(1/2)*xe)/2)^2 - Rl^2
-    f_z3_pos_prime(z, ye, ze, Rl, Ru, Rb, Rp) = 2*z - 2*ze - (4*z*(Rp/2 - Rb/2 + ye/2 + (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 + (3^(1/2)*xe)/2))/(- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)
-    f_z3_neg_prime(z, ye, ze, Rl, Ru, Rb, Rp) = 2*z - 2*ze + (4*z*(Rp/2 - Rb/2 + ye/2 - (- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)/2 + (3^(1/2)*xe)/2))/(- 3*Rb^2 + 4*Ru^2 - 4*z^2)^(1/2)
-    left_half_plane(ϕ) = ϕ > π/2 || ϕ < -π/2
-    z2ϕ(z) = asin(z / Ru)
-    tup = (ye, ze, Rl, Ru, Rb, Rp)
-    z1_pos = newton(f_z1_pos, Ru/sqrt(2), f_z1_pos_prime, tup);
-    z1_neg = newton(f_z1_neg, -Ru/sqrt(2), f_z1_neg_prime, tup);
-    # z1_neg = newton(f_z1_pos, 0.0, f_z1_pos_prime, tup);
-
-    ϕ1pos = z2ϕ(z1_pos)
-    ϕ1neg = z2ϕ(z1_neg)
-    println("ϕ1pos = $(rad2deg(ϕ1pos)), ϕ1neg = $(rad2deg(ϕ1neg))")
-    # @assert((left_half_plane(ϕ1neg) && !left_half_plane(ϕ1pos)) || (left_half_plane(ϕ1pos) && !left_half_plane(ϕ1neg)))
-
-    ϕ1 = left_half_plane(ϕ1pos) ? ϕ1pos : ϕ1neg
-
-    # second arm
-    z2_pos = newton(f_z2_pos, Ru/sqrt(2), f_z2_pos_prime, tup);
-    z2_neg = newton(f_z2_neg, -Ru/sqrt(2), f_z2_neg_prime, tup);
-
-    ϕ2pos = z2ϕ(z2_pos)
-    ϕ2neg = z2ϕ(z2_neg)
-    println("ϕ2pos = $(rad2deg(ϕ2pos)), ϕ2neg = $(rad2deg(ϕ2neg))")
-    # @assert((left_half_plane(ϕ2neg) && !left_half_plane(ϕ2pos)) || (left_half_plane(ϕ2pos) && !left_half_plane(ϕ2neg)))
-
-    ϕ2 = left_half_plane(ϕ2pos) ? ϕ2pos : ϕ2neg
-
-    # third arm
-    z3_pos = newton(f_z3_pos, Ru/sqrt(2), f_z3_pos_prime, tup);
-    z3_neg = newton(f_z3_neg, -Ru/sqrt(2), f_z3_neg_prime, tup);
-
-    ϕ3pos = z2ϕ(z3_pos)
-    ϕ3neg = z2ϕ(z3_neg)
-    println("ϕ3pos = $(rad2deg(ϕ3pos)), ϕ3neg = $(rad2deg(ϕ3neg))")
-    # @assert((left_half_plane(ϕ3neg) && !left_half_plane(ϕ3pos)) || (left_half_plane(ϕ3pos) && !left_half_plane(ϕ3neg)))
-
-    ϕ3 = left_half_plane(ϕ3pos) ? ϕ3pog : ϕ3neg
-
-    return ϕ1, ϕ2, ϕ3
+function inv_kin(x::Vector{Real}, p::DeltaRobotParams)
+    @assert length(x) == 3
 end
 
 """
@@ -74,7 +20,7 @@ ee1, ee2, ee3, h1, h2, i, eps = for_kin(phi, [0.01,0.01,0.01,0.01,0.01,0.01], p)
   matrix becomes 0, which makes the inversion ill-posed
     - always initialize the matrix with a "good guess" other otherwise with at least 1 non-zero element
 """
-function for_kin(phi::Array{T, 1}, x0::Array{T, 1}, p::DeltaRobotParams; abstol=1e-12, max_iter=50) where T <: Real
+function for_kin(phi::Array{T, 1}, x0::Array{T, 1}, p::DeltaRobotParams; abstol=1e-15, max_iter=75) where T <: Real
     @assert length(phi) == 3
     @assert length(x0) == 6
 
@@ -121,9 +67,18 @@ function for_kin(phi::Array{T, 1}, x0::Array{T, 1}, p::DeltaRobotParams; abstol=
         i += 1;
     end
 
-    ee1 = SVector{3}([l2 * sin(x0[1]) * sin(x0[2]); r_base + l1 * cos(q11) + l2 * cos(x0[1]); l1 * sin(q11) + l2 * sin(x0[1]) * cos(x0[2])]);
-    ee2 = SVector{3}([l2 * sin(x0[3]) * sin(x0[4]); r_base + l1 * cos(q21) + l2 * cos(x0[3]); l1 * sin(q21) + l2 * sin(x0[3]) * cos(x0[4])]);
-    ee3 = SVectir{3}([l2 * sin(x0[5]) * sin(x0[6]); r_base + l1 * cos(q31) + l2 * cos(x0[5]); l1 * sin(q31) + l2 * sin(x0[5]) * cos(x0[6])]);
+    x0 = convert(Vector{Real}, x0)
+    x0 = [q11, x0[1], x0[2], q21, x0[3], x0[4], q31, x0[5], x0[6]];
+
+    return x0, i, ϵ;
+end
+
+function joint_angles_to_ee(x0::Vector{Real})
+    @assert length(x) == 9
+
+    ee1 = [l2 * sin(x0[2]) * sin(x0[3]); r_base + l1 * cos(x0[1]) + l2 * cos(x0[2]); l1 * sin(x0[1]) + l2 * sin(x0[2]) * cos(x0[3])];
+    ee2 = [l2 * sin(x0[5]) * sin(x0[6]); r_base + l1 * cos(x0[4]) + l2 * cos(x0[5]); l1 * sin(x0[5]) + l2 * sin(x0[5]) * cos(x0[6])];
+    ee3 = [l2 * sin(x0[8]) * sin(x0[9]); r_base + l1 * cos(x0[7]) + l2 * cos(x0[8]); l1 * sin(x0[7]) + l2 * sin(x0[8]) * cos(x0[9])];
 
     rot_z(theta) = [
         cos(theta) -sin(theta) 0; 
@@ -135,9 +90,8 @@ function for_kin(phi::Array{T, 1}, x0::Array{T, 1}, p::DeltaRobotParams; abstol=
     h1 = ee1 - [0;r_platform;0] - Rz_neg_2pi3 * (ee2 - [0;r_platform;0]);
     h2 = ee1 - [0;r_platform;0] -     Rz_2pi3 * (ee3 - [0;r_platform;0]);
 
-    return ee1, ee2, ee3, h1, h2, i, ϵ
-end
+    @assert isapprox(sum(h1), 0.0; atol=1e-12)
+    @assert isapprox(sum(h2), 0.0; atol=1e-12)
 
-
-function workspace(p::DeltaRobotParams)
+    return ee1 - [0;r_platform;0]
 end

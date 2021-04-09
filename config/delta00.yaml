@@ -1,34 +1,26 @@
+Cameras:
+  - type: "AdafruitPTC08"
+  - type: "AdafruitPTC08"
+  - type: "MockCamera"
+    filename: "data/recog/"
+IMUs:
+  - type: "HCrestFSM300"
+  - type: "HCrestFSM300"
+Motors:
+  - type: "ServoMG996R"
+  - type: "ServoMG996R"
+  - type: "ServoMG996R"
+Model:
+  - type: "Lagragian"
 StateEstimator:
   type: "UnscentedKalmanFilter"
-  Pose:
-    type: "Simple"
-  IMUs:
-    - type: "HillcrestFSM300"
-      a: 123.0
-    - type: "HillcrestFSM300"
-      a: -321.0
 Engine:
   type: "UCIEngine"
   tt_size: 16 # in MB
   threads: 1
-  book: true
 PathPlanningAlg:
-  type: "Simple"
+  type: "B-Splines"
 Controller:
-  type: "Optimal"
-  Model:
-    type: "Simple"
-  Motors:
-    - type: "uServoSG90"
-      x: 100.001
-    - type: "uServoSG90"
-      x: 0.00012
+  type: "GravityCompPID"
 Recognition:
-  type: "Simple"
-Cameras:
-  - type: "AdafruitPTC08"
-    x: 100.0
-  - type: "AdafruitPTC08"
-    x: -100.0
-  - type: "MockCamera"
-    filename: "data/recog/"
+  type: "SegmentClassify"

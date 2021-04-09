@@ -4,7 +4,7 @@ using LinearAlgebra, StaticArrays
 """
 generates initial conditions for delta arm IVP
 """
-function delta_arm_ics(u0::Array{Real, 1}, p::DeltaRobotParams)
+function delta_arm_ics(u0::Array{T, 1}, p::DeltaRobotParams) where {T<:Real}
     return u0
 end
 
@@ -446,36 +446,6 @@ function H_delta_robot_base!(out, dx, x, p, t)
     out[1:9] = qdot .- dx[1:9]; # first derivative residual
     out[10:18] = pdot .- dx[10:18]; # second derivative residual
     out[19:24] = z; # index reduced holonomic constraint
-end
-
-"""
-collision callbacks
-"""
-function arm12_collision_condition(x, t, integrator) # Event when event_f(u,t) == 0
-    (integrator.p.l1 * cos.(x[1]) .+ integrator.p.rb) - ((integrator.p.l1 * cos.(x[4]) .+ integrator.p.rb) * -sin(-2 * pi / 3))
-end
-
-function arm12_collision_affect!(integrator)
-    integrator.u[10] = -0.1 * integrator.u[10] # 0.1 is friction
-    integrator.u[13] = -0.1 * integrator.u[13] # 0.1 is friction
-end
-
-function arm13_collision_condition(x, t, integrator) # Event when event_f(u,t) == 0
-    (integrator.p.l1 * cos.(x[1]) .+ integrator.p.rb) - ((integrator.p.l1 * cos.(x[7]) .+ integrator.p.rb) * -sin(2 * pi / 3))
-end
-
-function arm13_collision_affect!(integrator)
-    integrator.u[10] = -0.1 * integrator.u[10] # 0.1 is friction
-    integrator.u[16] = -0.1 * integrator.u[16] # 0.1 is friction
-end
-
-function arm23_collision_condition(x, t, integrator) # Event when event_f(u,t) == 0
-    (integrator.p.l1 * cos.(x[4]) .+ integrator.p.rb) - ((integrator.p.l1 * cos.(x[7]) .+ integrator.p.rb) * -sin(-2 * pi / 3))
-end
-
-function arm23_collision_affect!(integrator)
-    integrator.u[13] = -0.1 * integrator.u[13] # 0.1 is friction
-    integrator.u[16] = -0.1 * integrator.u[16] # 0.1 is friction
 end
 
 """

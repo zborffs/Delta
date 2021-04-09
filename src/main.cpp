@@ -9,9 +9,8 @@
 #include <spdlog/sinks/basic_file_sink.h>
 
 /// Project Includes
-#include "_app/app.hpp"
-#include "_app/_app_state_init.hpp"
-#include "_grpc/grpc_server.hpp"
+#include "app.hpp"
+#include "_app_state_init.hpp"
 
 /**
  * sets up the console and log-file sinks for the logger used throughout the codebase
@@ -68,10 +67,7 @@ int main([[maybe_unused]]const int argc, char** argv) {
 
     /// Setup the Application and the gRPC server
     App app(config_file, std::make_unique<AppStateInit>());
-    gRPCServer server(&app);
-    std::thread grpc_server_thread(server);
     app();
-    grpc_server_thread.join();
 
     return 0;
 }
