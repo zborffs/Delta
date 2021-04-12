@@ -14,9 +14,6 @@ Julia
 - Check to make sure both Lagrangian and Hamiltonian are constant throughout the simulation
   - each returns to zero at each simulation point, but non-zero through interpolation points.
 
-### Hamiltonian Mechanics
-- try using DASSL or Sundial Solver
-
 Matlab
 ------
 ### Spherical Pendulum Singularity
