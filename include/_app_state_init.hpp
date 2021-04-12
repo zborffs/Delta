@@ -6,8 +6,7 @@
 
 /// Project Includes
 #include "app.hpp"
-#include "_app_state_recognition.hpp"
-#include "recognition.hpp"
+#include "_app_state_recognition.hpp" // next state
 
 /**
  * this class contains high-level logic for the initialization of the application
@@ -30,14 +29,14 @@ private:
     void init_recognition();
 public:
     explicit AppStateInit() {
-        spdlog::get("delta_logger")->info("Created AppStateInit");
+        spdlog::get("delta_logger")->info("Created AppStateInit.");
     }
+
     ~AppStateInit() {
-        spdlog::get("delta_logger")->info("Destroyed AppStateInit");
+        spdlog::get("delta_logger")->info("Destroyed AppStateInit.");
     }
+
     bool handle() override;
-
-
 };
 
 #endif // DELTA__APP_STATE_INIT_HPP

@@ -17,8 +17,6 @@ Dependencies (C/C++)
 - Matplot++
 - Eigen
 - Cloak-lib
-- PSOPT
-- IPOPT
 
 Target
 ------
@@ -27,4 +25,3 @@ Jetson Xavier NX
 Host
 ----
 MacBook Pro
-

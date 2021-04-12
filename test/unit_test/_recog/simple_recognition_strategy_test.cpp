@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <vector>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>

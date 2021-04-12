@@ -70,4 +70,4 @@ public:
     std::unique_ptr<EngineInterface> get_product() override;
 };
 
-#endif //DELTA_ENGINE_HPP
+#endif // DELTA_ENGINE_HPP

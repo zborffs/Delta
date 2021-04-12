@@ -1,7 +1,10 @@
 #ifndef DELTA_MODEL_HPP
 #define DELTA_MODEL_HPP
 
+/// 3rd party includes
 #include <spdlog/spdlog.h>
+
+/// internal includes
 #include "utils.hpp"
 
 // we literally need a differential equations solver?

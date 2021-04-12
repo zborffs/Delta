@@ -1,7 +1,11 @@
 #ifndef DELTA_MOTOR_HPP
 #define DELTA_MOTOR_HPP
 
+/// STL includes
 #include <typeinfo>
+
+/// 3rd party includes
+#include <spdlog/spdlog.h>
 
 template <class THardware>
 class Motor {

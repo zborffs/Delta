@@ -1,9 +1,9 @@
 #ifndef DELTA_REFERENCE_HPP
 #define DELTA_REFERENCE_HPP
 
+/// 3rd party includes
 #include <Eigen/Core>
 #include <opencv2/core.hpp>
-
 
 using FEN = std::string;
 using Photo = cv::Mat;

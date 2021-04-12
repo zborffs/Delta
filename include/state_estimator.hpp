@@ -1,8 +1,11 @@
 #ifndef DELTA_STATE_ESTIMATOR_HPP
 #define DELTA_STATE_ESTIMATOR_HPP
 
-#include "utils.hpp"
+/// 3rd party includes
 #include <spdlog/spdlog.h>
+
+/// internal includes
+#include "utils.hpp"
 
 class StateEstimator {
 public:

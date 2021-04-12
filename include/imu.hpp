@@ -1,7 +1,12 @@
 #ifndef DELTA_IMU_HPP
 #define DELTA_IMU_HPP
 
+/// STL includes
 #include <typeinfo>
+
+/// 3rd-party includes
+#include <Eigen/Core>
+#include <spdlog/spdlog.h>
 
 template <class THardware>
 class IMU {

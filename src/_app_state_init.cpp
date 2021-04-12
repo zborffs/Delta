@@ -1,8 +1,9 @@
 #include "_app_state_init.hpp"
 
 /**
- * initializes each one of the components using by using a configuration file to inform component's builder one proper
- * construction of modules.
+ * handles the initialization of the application by creating I/O device and component instances within the app context,
+ * spinning up the real-time loop thread, and transitioning to the Recognition state
+ * @return whether the handler was successful (true) or failed (false)
  */
 bool AppStateInit::handle() {
     /// Initialize Application from configuration file
@@ -16,7 +17,7 @@ bool AppStateInit::handle() {
     init_recognition();
     init_engine();
 
-    /// launch controller / state-estimator thread and move into App's thread
+    /// start the real-time loop thread
     std::thread t(&App::rt_loop, context_);
     context_->rt_loop_thread_ = std::move(t);
 
@@ -26,7 +27,7 @@ bool AppStateInit::handle() {
 }
 
 /**
- * initializes the camera objects
+ * handles the initialization of the cameras from the configuration file
  */
 void AppStateInit::init_cameras() {
     auto camera_config = context_->config_file()["Cameras"];
@@ -78,6 +79,9 @@ void AppStateInit::init_cameras() {
     }
 }
 
+/**
+ * handles the initialization of the IMUs from the configuration file
+ */
 void AppStateInit::init_imus() {
     auto imu_config = context_->config_file()["IMUs"];
 
@@ -116,6 +120,9 @@ void AppStateInit::init_imus() {
     }
 }
 
+/**
+ * handles the initialization of the motors from the configuration file
+ */
 void AppStateInit::init_motors() {
     auto motor_config = context_->config_file()["Motors"];
 
@@ -154,6 +161,9 @@ void AppStateInit::init_motors() {
     }
 }
 
+/**
+ * handles the initialization of the system model from the configuration file
+ */
 void AppStateInit::init_model() {
     auto model_config = context_->config_file()["StateEstimator"]; // get "StateEstimator" YAML map
 
@@ -173,7 +183,7 @@ void AppStateInit::init_model() {
 }
 
 /**
- * Initializes the StateEstimator component
+ * handles the initialization of the state estimator from the configuration file
  */
 void AppStateInit::init_state_estimator() {
     auto se_config = context_->config_file()["StateEstimator"]; // get "StateEstimator" YAML map
@@ -194,7 +204,7 @@ void AppStateInit::init_state_estimator() {
 }
 
 /**
- * Initializes the Engine component
+ * handles the initialization of the chess engine adapter component
  */
 void AppStateInit::init_engine() {
     auto eng_config = context_->config_file()["Engine"];
@@ -217,7 +227,7 @@ void AppStateInit::init_engine() {
 }
 
 /**
- * Initializes the Path Planning Algorithm
+ * handles the initialization of the path-planning template algorithm
  */
 void AppStateInit::init_plan() {
     auto plan_config = context_->config_file()["PathPlanning"];
@@ -233,7 +243,7 @@ void AppStateInit::init_plan() {
 }
 
 /**
- * Initializes the controller
+ * handles the initialization of the controller template algorithm
  */
 void AppStateInit::init_controller() {
     auto control_config = context_->config_file()["Controller"];
@@ -249,7 +259,7 @@ void AppStateInit::init_controller() {
 }
 
 /**
- * initializes the recognition component
+ * handles the initialization of the recognition template algorithm
  */
 void AppStateInit::init_recognition() {
     auto recog_config = context_->config_file()["Recognition"];
@@ -263,5 +273,3 @@ void AppStateInit::init_recognition() {
         context_->recognition_ = std::make_unique<SegmentClassify>();
     }
 }
-
-

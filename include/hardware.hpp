@@ -1,14 +1,15 @@
 #ifndef DELTA_HARDWARE_HPP
 #define DELTA_HARDWARE_HPP
 
+/// STL includes
 #include <typeinfo>
+
+/// 3rd party includes
 #include <spdlog/spdlog.h>
 
 class HWJetson {
 public:
-    HWJetson() {
-//        spdlog::get("delta_logger")->info("Created HWJetson object");
-    }
+    HWJetson() = default;
 //    void gpio_on(void* address);
 //    void gpio_off(void* address);
 //    void gpio_toggle(void* address);
@@ -20,9 +21,7 @@ public:
 
 class HWMock {
 public:
-    HWMock() {
-//        spdlog::get("delta_logger")->info("Created HWMock object");
-    }
+    HWMock() = default;
 //    void gpio_on(void* address);
 //    void gpio_off(void* address);
 //    void gpio_toggle(void* address);

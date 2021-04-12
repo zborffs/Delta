@@ -1,10 +1,15 @@
 #ifndef DELTA_PATH_PLAN_HPP
 #define DELTA_PATH_PLAN_HPP
 
+/// STL includes
 #include <optional>
+
+/// 3rd party includes
+#include <spdlog/spdlog.h>
+
+/// internal includes
 #include "utils.hpp"
 #include "chess_move.hpp"
-#include <spdlog/spdlog.h>
 
 class PathPlanner {
 public:

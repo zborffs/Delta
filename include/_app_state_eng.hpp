@@ -18,6 +18,7 @@
  */
 class AppStateEng : public AppState {
     std::string fen_;
+
 public:
     explicit AppStateEng(std::string&& fen) : fen_(fen) {
         spdlog::get("delta_logger")->info("Created AppStateEng (fen: {})", fen_);

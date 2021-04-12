@@ -14,8 +14,8 @@
 
 /**
  * sets up the console and log-file sinks for the logger used throughout the codebase
- * @param logfile_path the path to the logfile
- * @return             true means the initialization was successful, false otherwise
+ * @param  logfile_path the path to the logfile
+ * @return true means the initialization was successful, false otherwise
  */
 bool init_logger(const std::string& logfile_path) {
     try {

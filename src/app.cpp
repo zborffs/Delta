@@ -58,10 +58,17 @@ void App::quit_rt_loop() {
     quit_ = true;
 }
 
-
 /**
  * operator for starting App and making it a functor for multithreading purposes
  */
 void App::operator()() {
     while (state_->handle());
+}
+
+Reference App::reference() {
+    return reference_;
+}
+
+void App::set_reference(Reference& reference) {
+    reference_ = reference;
 }

@@ -11,13 +11,11 @@
 /// Project Includes
 #include "utils.hpp"
 
-
-
 template <class THardware>
 class Camera {
 public:
     virtual ~Camera() = default;
-    virtual cv::Mat take_picture() = 0;
+    virtual Photo take_picture() = 0;
 };
 
 template <class THardware>
@@ -32,11 +30,11 @@ public:
     ~MockCamera() {
         spdlog::get("delta_logger")->info("Destroyed MockCamera");
     }
-    cv::Mat take_picture() override;
+    Photo take_picture() override;
 };
 
 template <class THardware>
-cv::Mat MockCamera<THardware>::take_picture() {
+Photo MockCamera<THardware>::take_picture() {
     int n = ((num_) % 6) + 1; // 6 is number of images I have
     std::string f("../" + file_name_ + "img" + std::to_string(n) + ".jpg");
     num_ = ((++n) % 6);
@@ -56,9 +54,9 @@ public:
 };
 
 template <class THardware>
-cv::Mat AdafruitPTC08<THardware>::take_picture() {
+Photo AdafruitPTC08<THardware>::take_picture() {
     hw_.speak();
-    cv::Mat m;
+    Photo m;
     return m;
 }
 

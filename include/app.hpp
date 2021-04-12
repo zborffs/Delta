@@ -79,26 +79,22 @@ private:
     // mutexed variables and mutexes
     bool quit_{false};
     std::mutex mu_quit_;
+    Reference reference_;
+    std::mutex mu_ref_;
 
     // private member functions
     void rt_loop();
     bool quit();
     void quit_rt_loop();
+    Reference reference();
+    void set_reference(Reference& reference);
 
 public:
-    /**
-     *
-     * @param config_file
-     * @param init_state
-     */
     explicit App(const YAML::Node& config_file, std::unique_ptr<AppState> init_state) : config_file_(config_file), state_(std::move(init_state)) {
         state_->set_context(this);
         spdlog::get("delta_logger")->info("Created App");
     }
 
-    /**
-     *
-     */
     ~App() {
         spdlog::get("delta_logger")->info("Destroyed App");
     }
