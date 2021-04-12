@@ -1,6 +1,4 @@
 Cameras:
-  - type: "AdafruitPTC08"
-  - type: "AdafruitPTC08"
   - type: "MockCamera"
     filename: "res/positions/"
 IMUs:
@@ -24,3 +22,4 @@ Controller:
   type: "GravityCompPID"
 Recognition:
   type: "SegmentClassify"
+  median_blur_ksize: 19

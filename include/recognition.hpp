@@ -4,6 +4,7 @@
 /// STL Includes
 #include <vector>
 #include <optional>
+#include <random>
 
 /// 3rd party includes
 #include <opencv2/opencv.hpp>
@@ -19,11 +20,9 @@ public:
 };
 
 class SegmentClassify : public Recognition {
-    static Photo detect_edges(Photo& input);
-    static Photo detect_edges2(Photo& input);
-    static Photo detect_edges3(Photo& input);
+private:
     static inline double PI{std::acos(-1)};
-    static cv::Vec2f points_to_line(cv::Vec4f points);
+    static std::array<Photo, 64> segment(Photo& photo);
 
 public:
     SegmentClassify() {

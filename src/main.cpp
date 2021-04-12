@@ -12,6 +12,10 @@
 #include "app.hpp"
 #include "_app_state_init.hpp"
 
+#define LOGGER_INITIALIZATION_FAILED -1
+#define CONFIG_INITIALIZATION_FAILED -2
+#define SUCCESS 0
+
 /**
  * sets up the console and log-file sinks for the logger used throughout the codebase
  * @param  logfile_path the path to the logfile
@@ -52,7 +56,7 @@ int main([[maybe_unused]]const int argc, char** argv) {
     /// Setup logger output logfile from program arguments
     std::string logfile_path(base + "/../logs/Delta.log");
     if (!init_logger(logfile_path)) {
-        return -1; // if the initialization of the logger fails, just quit immediately
+        return LOGGER_INITIALIZATION_FAILED; // if the initialization of the logger fails, just quit immediately
     }
 
     /// Find configuration file from program arguments
@@ -62,12 +66,12 @@ int main([[maybe_unused]]const int argc, char** argv) {
         config_file = YAML::LoadFile(config_path);
     } catch (...) {
         spdlog::get("delta_logger")->error("Couldn't open configuration file!");
-        return -2;
+        return CONFIG_INITIALIZATION_FAILED;
     }
 
     /// Setup the Application and the gRPC server
     App app(config_file, std::make_unique<AppStateInit>());
     app();
 
-    return 0;
+    return SUCCESS;
 }
