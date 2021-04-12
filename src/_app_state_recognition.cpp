@@ -2,15 +2,24 @@
 
 /**
  * the Recognition AppState transforms nothing->(legal) chess position
- * 1.) request the position FEN from the Recognition component
- * 2.) Appraise the legality of the FEN by passing the FEN into the EngineInterface component
- * 3.) Transition to the AppStateEngine state if the move is legal
+ * 1.) take a picture with each of the cameras
+ * 2.) make a request of the recognition component to determine the position from the given photograph
+ * 3.) Appraise the legality of the FEN by passing the FEN into the EngineInterface component
+ * 4.) Transition to the AppStateEngine state if the move is legal
  * @return whether or not the handling function failed (false) or succeeded (true)
  */
 bool AppStateRecognition::handle() {
-    /// ask the Recognition component for the current position
-//    std::optional<std::string> fen = context_->recognition_->determine_position();
-    std::optional<std::string> fen = "bob";
+    /// Take picture with each camera, try to determine the position from the camera's picture
+    std::optional<FEN> fen{std::nullopt};
+    for (auto & camera : context_->cameras_) {
+        auto photo = camera->take_picture(); // take picture with camera
+        fen = context_->recognition_->determine_position(photo); // try to get FEN from the photo
+
+        // if we found the fen, then just quit
+        if (fen.has_value()) {
+            break;
+        }
+    }
 
     /// if the returned value is std::nullopt, then the Recognition algorithm failed to discern the position,
     /// log the failure and leave the state with a 'false' value to leave the app's 'main' loop

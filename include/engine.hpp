@@ -1,15 +1,20 @@
 #ifndef DELTA_ENGINE_HPP
 #define DELTA_ENGINE_HPP
 
+/// STL includes
 #include <memory>
 #include <optional>
 #include <string>
 
+/// 3rd party includes
 #include <yaml-cpp/yaml.h>
 #include <spdlog/spdlog.h>
 
-#include "utils.hpp"
+/// Cloak includes
 #include "chess_move.hpp"
+
+/// Internal includes
+#include "utils.hpp"
 
 
 class EngineInterface {
@@ -22,10 +27,14 @@ public:
 class UCIAdapter : public EngineInterface {
     int tt_size_;
     int threads_;
+    std::vector<std::string> move_strings_;
 
 public:
     explicit UCIAdapter() : tt_size_(16), threads_(1) {
         spdlog::get("delta_logger")->info("Created UCIAdapter object (tt_size: {}, threads: {})", tt_size_, threads_);
+
+        // spin the sub-process running cloak
+        // have the
     }
     ~UCIAdapter() {
         spdlog::get("delta_logger")->info("Destroyed UCIAdapter");

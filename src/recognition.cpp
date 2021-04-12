@@ -241,11 +241,11 @@ cv::Mat SegmentClassify::detect_edges3(cv::Mat& input) {
  *
  * @return
  */
-std::optional<FEN> SegmentClassify::determine_position(std::vector<Photo>& photos) {
-    std::vector<cv::Mat> threshold(photos.size());
-    for (unsigned i = 0; i < photos.size(); ++i) {
-        threshold[i] = detect_edges3(photos[i]);
-    }
+std::optional<FEN> SegmentClassify::determine_position(Photo& photo) {
+//    std::vector<cv::Mat> threshold(photos.size());
+//    for (unsigned i = 0; i < photos.size(); ++i) {
+//        threshold[i] = detect_edges3(photos[i]);
+//    }
 
 //    std::vector<cv::Mat> grays(cameras_.size());
 //    for (unsigned i = 0; i < cameras_.size(); ++i) {

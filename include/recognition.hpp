@@ -14,7 +14,7 @@
 class Recognition {
 public:
     virtual ~Recognition() = default;
-    virtual std::optional<FEN> determine_position(std::vector<Photo>& photos) = 0;
+    virtual std::optional<FEN> determine_position(Photo& photo) = 0;
 };
 
 class SegmentClassify : public Recognition {
@@ -33,7 +33,7 @@ public:
         spdlog::get("delta_logger")->info("Destroyed SegmentClassify object.");
     }
 
-    std::optional<FEN> determine_position(std::vector<Photo>& photos) override;
+    std::optional<FEN> determine_position(Photo& photo) override;
 };
 
 #endif //DELTA_RECOGNITION_HPP

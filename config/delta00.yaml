@@ -2,7 +2,7 @@ Cameras:
   - type: "AdafruitPTC08"
   - type: "AdafruitPTC08"
   - type: "MockCamera"
-    filename: "data/recog/"
+    filename: "res/positions/"
 IMUs:
   - type: "HCrestFSM300"
   - type: "HCrestFSM300"
