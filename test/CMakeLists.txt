@@ -1,5 +1,5 @@
-add_executable(SimpleRecognitionStrategyTest unit_test/_recog/simple_recognition_strategy_test.cpp)
+# Create executables
+add_executable(MatplotTest matplot_test.cpp)
 
-target_link_libraries(SimpleRecognitionStrategyTest Delta-lib ${GTEST_LIBRARIES} Threads::Threads Matplot++::matplot)
-
-add_test(SimpleRecognitionStrategyTest SimpleRecognitionStrategyTest)
+# Link libraries to executables
+target_link_libraries(MatplotTest Matplot++::matplot)

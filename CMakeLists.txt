@@ -69,28 +69,28 @@ endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "G
 
 # Put all source files excluding main.cpp into library source variable
 set(DELTA_LIB_SRCS
-        src/_app_state_init.cpp
-        src/_app_state_eng.cpp
-        src/_app_state_recognition.cpp
-        src/_app_state_plan.cpp
-        src/_app_state_wait.cpp
-        src/_app_state_shutdown.cpp
-        src/app.cpp
-        src/controller.cpp
-        src/engine.cpp
-        src/hardware.cpp
-        src/main.cpp
-        src/model.cpp
-        src/path_plan.cpp
-        src/recognition.cpp
-        src/state_estimator.cpp
+    src/_app_state_init.cpp
+    src/_app_state_eng.cpp
+    src/_app_state_recognition.cpp
+    src/_app_state_plan.cpp
+    src/_app_state_wait.cpp
+    src/_app_state_shutdown.cpp
+    src/app.cpp
+    src/controller.cpp
+    src/engine.cpp
+    src/hardware.cpp
+    src/main.cpp
+    src/model.cpp
+    src/path_plan.cpp
+    src/recognition.cpp
+    src/state_estimator.cpp
 )
 
 # Create library, link external libraries to it
 add_library(Delta-lib ${DELTA_LIB_SRCS})
 set_target_properties(Delta-lib PROPERTIES PREFIX "")
 link_directories(libs)
-target_link_libraries(Delta-lib Matplot++::matplot Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS} libCloak-lib.a)
+target_link_libraries(Delta-lib Matplot++::matplot Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS})
 target_include_directories(Delta-lib PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${SPDLOG_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
 
 # Create main executable
@@ -102,4 +102,5 @@ install(TARGETS Delta-lib ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIM
 if (BUILD_TESTS)
     message("-- Building tests")
     add_subdirectory(test)
+    add_subdirectory(benchmark)
 endif()

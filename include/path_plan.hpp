@@ -9,6 +9,9 @@
 
 /// internal includes
 #include "utils.hpp"
+#include "bsplines.hpp"
+
+/// Cloak includes
 #include "chess_move.hpp"
 
 class PathPlanner {
