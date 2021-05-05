@@ -9,17 +9,12 @@ Script for simulating a delta robot when accounting for the Base and platform ra
         - robot parameters (lengths and masses)
         - time span to simulate over
 """
-using DifferentialEquations
-using LinearAlgebra
-using Plots
-using DeltaRobot
-using BenchmarkTools
-using Sundials
+using DifferentialEquations, LinearAlgebra, Plots, DeltaRobot, BenchmarkTools, Sundials, Revise
 
 # Set initial conditions
 u0, du0, diff_vars = delta_robot_ics(
-    [pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0], 
-    [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0], 
+    [pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0],
+    [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0],
     [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0]
 )
 @assert length(u0) == length(du0) # make sure position and velocity initial condition vectors have same dimensionality
