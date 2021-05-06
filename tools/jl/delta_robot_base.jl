@@ -9,19 +9,24 @@ Script for simulating a delta robot when accounting for the Base and platform ra
         - robot parameters (lengths and masses)
         - time span to simulate over
 """
-using DifferentialEquations, LinearAlgebra, Plots, DeltaRobot, BenchmarkTools, Sundials, Revise
+using DifferentialEquations
+using LinearAlgebra
+using Plots
+using Sundials
+using Revise
+using DeltaRobot
 
 # Set initial conditions
 u0, du0, diff_vars = delta_robot_ics(
     [pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0],
-    [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0],
-    [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0]
+    [0.01; 0.0; 0.0; 0.01; 0.0; 0.0; 0.01; 0.0; 0.0],
+    [0.0; 0.01; 0.0; 0.0; 0.01; 0.0; 0.01; 0.0; 0.0]
 )
 @assert length(u0) == length(du0) # make sure position and velocity initial condition vectors have same dimensionality
 @assert length(u0) == length(diff_vars) # make sure position and vector denoting which equations are differential equations have the same dimensionality
 @assert u0[10:18] == du0[1:9] # make sure initial conditions are consistent
-delta_robot_params = DeltaRobotParams(2.5, 3.0, 4.0, 0.312, 0.410, 9.8, 0.114, 0.051, 0.25, 0.25, 0.25); # Actual robot parameters with random d-params
-tspan = (0.0, 30.0) # time span to simulate the system over
+delta_robot_params = DeltaRobotParams(2.5, 3.0, 4.0, 0.312, 0.410, 9.8, 0.114, 0.051, 0.0106, 0.0106, 0.0106); # Actual robot parameters with random d-params
+tspan = (0.0, 15.0) # time span to simulate the system over
 dt = 0.05 # time step
 
 # Setup & solve the DAE under Lagrangian formalism
@@ -40,6 +45,13 @@ u0, du0, diff_vars = delta_robot_ics(convert(Vector{Float64}, x0[1]), zeros(9), 
 @assert length(u0) == length(du0) # make sure position and velocity initial condition vectors have same dimensionality
 @assert length(u0) == length(diff_vars) # make sure position and vector denoting which equations are differential equations have the same dimensionality
 @assert u0[10:18] == du0[1:9] # make sure initial conditions are consistent
+
+grav_comp_prob = DAEProblem(DeltaRobot.gravity_compensated_model!, du0, u0, tspan, delta_robot_params, differential_vars=diff_vars) # statement of the DAE problem
+grav_comp_sol = solve(grav_comp_prob, IDA(), saveat=dt)
+
+# Animate the solution to the differential equation
+grav_comp_anim = DeltaRobot.animate_robot(grav_comp_sol, delta_robot_params)
+gif(grav_comp_anim, fps=1/dt)
 
 # # Setup and solve the DAE under the Hamiltonian formalism
 # H_prob = DAEProblem(DeltaRobot.H_delta_robot_base!, du0, u0, tspan, delta_robot_params, differential_vars=diff_vars)

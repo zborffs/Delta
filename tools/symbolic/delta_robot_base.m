@@ -1,5 +1,15 @@
-%% Perform Symbolic Calculations for Delta Robot
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Script Description:                                                     %
+% This script is responsible for performing symbolic calculus in order to %
+% derive a delta robot's kinematics and dynamics.                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+disp("Starting Delta Robot Script...");
+disp("==============================");
+tic
+
 %% Clear Previous workspace and Declare Symbolic Variables
+disp("[1/11] Declaring & organizing symbolic variables & model parameters...");
 clear all
 syms q11 q12 q13 q11dot q12dot q13dot q11ddot q12ddot q13ddot real
 syms q21 q22 q23 q21dot q22dot q23dot q21ddot q22ddot q23ddot real
@@ -30,6 +40,7 @@ J1 = m1 * l1^2 / 12.0; % inertia link 1 (assuming rod) -> 1/3
 J2 = m2 * l2^2 / 12.0; % inertia link 2 (assuming rod) -> 1/3
 
 %% Compute Lagrangian for First Arm
+disp("[2/11] Computing Lagrangian of first arm...");
 phi1 = q1(1);
 phi2 = q1(2);
 phi3 = q1(3);
@@ -53,6 +64,7 @@ V1 = -g * ((lc1 * m1 + l1 * (m2 + m3 / 3)) * sin(phi1) + (lc2 * m2 + l2 * m3 / 3
 L1 = T1 - V1;
 
 %% Compute Lagrangian for Second Arm
+disp("[3/11] Computing Lagrangian of second arm...");
 phi1 = q2(1);
 phi2 = q2(2);
 phi3 = q2(3);
@@ -76,6 +88,7 @@ V2 = -g * ((lc1 * m1 + l1 * (m2 + m3 / 3)) * sin(phi1) + (lc2 * m2 + l2 * m3 / 3
 L2 = T2 - V2;
 
 %% Compute Lagrangian of Third Arm
+disp("[4/11] Computing Lagrangian of third arm...");
 phi1 = q3(1);
 phi2 = q3(2);
 phi3 = q3(3);
@@ -99,6 +112,7 @@ V3 = -g * ((lc1 * m1 + l1 * (m2 + m3 / 3)) * sin(phi1) + (lc2 * m2 + l2 * m3 / 3
 L3 = T3 - V3;
 
 %% Declare Holonomic Constraint
+disp("[5/11] Declaring holonomic constraints...");
 Rz_2pi3 = rot_z(2 * pi / 3); % Rotation by 1/3 circle about z-axis
 Rz_neg_2pi3 = rot_z(-2 * pi / 3);  % Rotation by 1/3 circle about z-axis
 h1 = xc13 - [0;r_platform;0] - Rz_neg_2pi3 * (xc23 - [0;r_platform;0]); % holonomic constraint 1
@@ -112,17 +126,22 @@ Lu = L1 + L2 + L3; % add the lagrangians into single unconstrained lagrangian
 L = Lu + lambda' * h; % constrain lagrangian with addition of holonomic constraint * lagrangian multipliers
 
 %% Transform Lagrangians into the Euler-Lagrange Equation
+disp("[6/11] Transforming Lagrangians into Euler-Lagrange Equation...");
 dLdqdot   = jacobian(L, qdot)';
 dtdLdqdot = jacobian(dLdqdot, [q;qdot]) * [qdot; qddot];
 dLdq      = jacobian(L, q)';
 EL = simplify(dtdLdqdot - dLdq); % Euler-Lagrange Equation
 
 %% Determine Standard Representation from Euler-Lagrange Equation (M*qddot + C(q, qdot) + G(q) = lambda' * H) -> Mqqdot + C + G = lambda' H + Bu -> G = lambda' * H + Bu -> choose u s.t. u = G(1) - lambda' * H (eq 24.) Mbar_y
+disp("[7/11] Determining standard representation from Euler-Lagrange Equation...");
 [M, b] = equationsToMatrix(EL, qddot);
 M = simplify(M);
 b = simplify(b); % External Forces: -b == C + G - lambda' * H
+G = simplify(jacobian(V1 + V2 + V3, q)');
+C = simplify(-(b + G - H' * lambda));
 
 %% Take derivative w.r.t time of H
+disp("[8/11] Performing Baumgarte reduction...");
 H1 = H(:, 1);
 H1dot = jacobian(H1, q) * qdot;
 H2 = H(:, 2);
@@ -151,11 +170,13 @@ z2 = Hdot * qdot + H * (M \ b); % 6x9 * 9x1 + 6x9 * 9x1 = 6x1 + 6x1 = 6x1
 % dae1_holonomic = simplify(z0 + z1 + z2);
 
 %% Determine the Sub-Inertia Matrices
+disp("[9/11] Determining sub-inertia matrices...");
 Mtop = M(1:3, 1:3);
 Mmid = M(4:6, 4:6);
 Mbot = M(7:9, 7:9);
 
 %% Write Matrices to File
+disp("[10/11] Saving matrices...");
 % writematrix(char(Dtop), "../../res/mat_data/Dtop_base.txt");
 % writematrix(char(Dmid), "../../res/mat_data/Dmid_base.txt");
 % writematrix(char(Dbot), "../../res/mat_data/Dbot_base.txt");
@@ -165,5 +186,23 @@ Mbot = M(7:9, 7:9);
 % writematrix(   char(H), "../../res/mat_data/H_upper_base.txt");
 
 %% Forward Kinematics Jacobian
+disp("[11/11] Deriving forward kinematics jacobian...");
 J = jacobian(h, [q12, q13, q22, q23, q32, q33]);
 % for_kin_matrix = J \ -h;
+
+%% Solve for gravity-compensation non-linear equations
+B = [1 0 0 0 0 0 0 0 0; 
+     0 0 0 0 0 0 0 0 0;
+     0 0 0 0 0 0 0 0 0;
+     0 0 0 1 0 0 0 0 0;
+     0 0 0 0 0 0 0 0 0;
+     0 0 0 0 0 0 0 0 0;
+     0 0 0 0 0 0 1 0 0;
+     0 0 0 0 0 0 0 0 0;
+     0 0 0 0 0 0 0 0 0];
+% B * tau == G - H'*lambda
+
+%% Derive gravity-compensated model
+
+
+toc
