@@ -4,4 +4,4 @@ add_executable(mlpackTest mlpack_test.cpp)
 
 # Link libraries to executables
 target_link_libraries(MatplotTest Matplot++::matplot)
-target_link_libraries(mlpackTest ${MLPACK_LIBRARY})
+target_link_libraries(mlpackTest mlpack::mlpack)

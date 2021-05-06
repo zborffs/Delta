@@ -3,7 +3,6 @@
 #include <memory>
 
 /// 3rd party includes
-#include <matplot/matplot.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -65,12 +64,13 @@ int main([[maybe_unused]]const int argc, char** argv) {
     /// Create recognition component
     std::unique_ptr<Recognition> recog = std::make_unique<SegmentClassify>();
 
-
     /// For each position, segment it
     for (auto& img_path : pos_img_paths) {
         Photo photo = cv::imread(pos_img_base_path + img_path);
         auto fen = recog->determine_position(photo);
     }
+
+    /// mlpack
 
     return SUCCESS;
 }

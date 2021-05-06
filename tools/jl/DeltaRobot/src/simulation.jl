@@ -570,8 +570,7 @@ function gravity_compensated_model!(out, dx, x, p, t)
     D[8] = p.d2;
     D[9] = p.d3;
 
-    invM_times_b = invM \ (-C); #.- D .* x[10:18]); # invD_times_b = invD * b;
-    println("Hello $(invM_times_b)")
+    invM_times_b = invM \ (-C .- D .* x[10:18]); #.- D .* x[10:18]); # invD_times_b = invD * b;
     z0 = h;
     z1 = H * x[10:18];
     z2 = Hdot * x[10:18] .+ H * invM_times_b;

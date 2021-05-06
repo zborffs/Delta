@@ -19,8 +19,8 @@ using DeltaRobot
 # Set initial conditions
 u0, du0, diff_vars = delta_robot_ics(
     [pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0],
-    [0.01; 0.0; 0.0; 0.01; 0.0; 0.0; 0.01; 0.0; 0.0],
-    [0.0; 0.01; 0.0; 0.0; 0.01; 0.0; 0.01; 0.0; 0.0]
+    [0.01; 0.01; 0.01; 0.01; 0.01; 0.01; 0.01; 0.01; 0.01],
+    [0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1]
 )
 @assert length(u0) == length(du0) # make sure position and velocity initial condition vectors have same dimensionality
 @assert length(u0) == length(diff_vars) # make sure position and vector denoting which equations are differential equations have the same dimensionality
