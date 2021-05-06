@@ -1,4 +1,12 @@
 /lib/
 /logs/
-/res/
-/res/*
+/res/caffe/
+/res/caffe/*
+/res/gcode/
+/res/gcode/*
+/res/stl/
+/res/stl/*
+/res/mat_data/
+/res/mat_data/*
+/res/positions/
+/res/positions/*
