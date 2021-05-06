@@ -19,8 +19,8 @@ using DeltaRobot
 # Set initial conditions
 u0, du0, diff_vars = delta_robot_ics(
     [pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0; pi/4; 3*pi/4; 0.0],
-    [0.01; 0.01; 0.01; 0.01; 0.01; 0.01; 0.01; 0.01; 0.01],
-    [0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1]
+    [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0],
+    [0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0]
 )
 @assert length(u0) == length(du0) # make sure position and velocity initial condition vectors have same dimensionality
 @assert length(u0) == length(diff_vars) # make sure position and vector denoting which equations are differential equations have the same dimensionality
@@ -39,19 +39,21 @@ anim_L = DeltaRobot.animate_robot(L_sol, delta_robot_params)
 gif(anim_L, fps=1/dt)
 
 # Second set of initial conditions
-phi0 = deg2rad.([0.0, 0.0, 0.0])
-x0 = for_kin(phi0, [3*pi/4, 0.0, 3*pi/4, 0.0, 3*pi/4, 0.0], delta_robot_params)
-u0, du0, diff_vars = delta_robot_ics(convert(Vector{Float64}, x0[1]), zeros(9), zeros(9))
+phi0 = deg2rad.([20., 20., 40.0])
+x0 = DeltaRobot.for_kin(phi0, [3*pi/4, 0.0, 3*pi/4, 0.0, 3*pi/4, 0.0], delta_robot_params)
+u0, du0, diff_vars = delta_robot_ics(x0[1], zeros(9), zeros(9))
 @assert length(u0) == length(du0) # make sure position and velocity initial condition vectors have same dimensionality
 @assert length(u0) == length(diff_vars) # make sure position and vector denoting which equations are differential equations have the same dimensionality
 @assert u0[10:18] == du0[1:9] # make sure initial conditions are consistent
+DeltaRobot.holonomic_constraint(x0[1], delta_robot_params)
 
 grav_comp_prob = DAEProblem(DeltaRobot.gravity_compensated_model!, du0, u0, tspan, delta_robot_params, differential_vars=diff_vars) # statement of the DAE problem
-grav_comp_sol = solve(grav_comp_prob, IDA(), saveat=dt)
+grav_comp_sol = solve(grav_comp_prob,  IDA(linear_solver=:BCG), saveat=dt, reltol=1e-6,abstol=1e-6)
 
 # Animate the solution to the differential equation
 grav_comp_anim = DeltaRobot.animate_robot(grav_comp_sol, delta_robot_params)
 gif(grav_comp_anim, fps=1/dt)
+
 
 # # Setup and solve the DAE under the Hamiltonian formalism
 # H_prob = DAEProblem(DeltaRobot.H_delta_robot_base!, du0, u0, tspan, delta_robot_params, differential_vars=diff_vars)

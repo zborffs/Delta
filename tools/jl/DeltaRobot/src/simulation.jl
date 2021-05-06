@@ -580,3 +580,32 @@ function gravity_compensated_model!(out, dx, x, p, t)
     out[10:18] = invM_times_b .- dx[10:18]; # second derivative residual
     out[19:24] = z; # index reduced holonomic constraint
 end
+
+
+function holonomic_constraint(q, p)
+    q11 = q[1]
+    q12 = q[2]
+    q13 = q[3]
+    q21 = q[4]
+    q22 = q[5]
+    q23 = q[6]
+    q31 = q[7]
+    q32 = q[8]
+    q33 = q[9]
+    m1 = p.m1;
+    m2 = p.m2;
+    m3 = p.m3;
+    l1 = p.l1;
+    l2 = p.l2;
+    g = p.g;
+    r_base = p.rb;
+    r_platform = p.rp
+    h = [
+        l2*sin(q12)*sin(q13) - (3^(1/2)*(r_base - r_platform + l1*cos(q21) + l2*cos(q22)))/2 + (l2*sin(q22)*sin(q23))/2
+        (3*r_base)/2 - (3*r_platform)/2 + l1*cos(q11) + l2*cos(q12) + (l1*cos(q21))/2 + (l2*cos(q22))/2 + (3^(1/2)*l2*sin(q22)*sin(q23))/2
+        l1*sin(q11) - l1*sin(q21) + l2*cos(q13)*sin(q12) - l2*cos(q23)*sin(q22)
+        (3^(1/2)*(r_base - r_platform + l1*cos(q31) + l2*cos(q32)))/2 + l2*sin(q12)*sin(q13) + (l2*sin(q32)*sin(q33))/2
+        (3*r_base)/2 - (3*r_platform)/2 + l1*cos(q11) + l2*cos(q12) + (l1*cos(q31))/2 + (l2*cos(q32))/2 - (3^(1/2)*l2*sin(q32)*sin(q33))/2
+        l1*sin(q11) - l1*sin(q31) + l2*cos(q13)*sin(q12) - l2*cos(q33)*sin(q32)
+    ];
+end
