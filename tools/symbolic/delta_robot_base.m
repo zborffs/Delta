@@ -201,8 +201,50 @@ B = [1 0 0 0 0 0 0 0 0;
      0 0 0 0 0 0 0 0 0;
      0 0 0 0 0 0 0 0 0];
 % B * tau == G - H'*lambda
+% as far as I can tell, these are intractable or there's literally no
+% solution
 
-%% Derive gravity-compensated model
+%% Derive approximate feedback linearization
+y = [q11; q21; q31];
+x = [q12; q13; q22; q23; q32; q33];
+ydot = [q11dot; q21dot; q31dot];
+xdot = [q12dot; q13dot; q22dot; q23dot; q32dot; q33dot];
+yddot = [q11ddot; q21ddot; q31ddot];
+xddot = [q12ddot; q13ddot; q22ddot; q23ddot; q32ddot; q33ddot];
+Mbar = [M(:,1) M(:,4) M(:,7) M(:,2) M(:,3) M(:,5) M(:,6) M(:,8) M(:,9)];
+Mbar = [Mbar(1,:); Mbar(4,:); Mbar(7,:); Mbar(2,:); Mbar(3,:); Mbar(5,:); Mbar(6,:); Mbar(8,:); Mbar(9,:)];
+M11bar = Mbar(1:3,1:3);
+M12bar = Mbar(1:3,4:9);
+M21bar = Mbar(4:9,1:3);
+M22bar = Mbar(4:9,4:9);
+Cbar = [C(1); C(4); C(7); C(2); C(3); C(5); C(6); C(8); C(9)];
+Cbar1 = Cbar(1:3);
+Cbar2 = Cbar(4:9);
 
+% don't get this
+jac_hy = jacobian(h, y);
+jac_hx = jacobian(h, x);
+
+jac_hy_dot1 = jacobian(jac_hy(:,1), y) * ydot;
+jac_hy_dot2 = jacobian(jac_hy(:,2), y) * ydot;
+jac_hy_dot3 = jacobian(jac_hy(:,3), y) * ydot;
+jac_hy_dot = [jac_hy_dot1, jac_hy_dot2, jac_hy_dot3];
+jac_hx_dot1 = jacobian(jac_hx(:,1), x) * xdot;
+jac_hx_dot2 = jacobian(jac_hx(:,2), x) * xdot;
+jac_hx_dot3 = jacobian(jac_hx(:,3), x) * xdot;
+jac_hx_dot4 = jacobian(jac_hx(:,4), x) * xdot;
+jac_hx_dot5 = jacobian(jac_hx(:,5), x) * xdot;
+jac_hx_dot6 = jacobian(jac_hx(:,6), x) * xdot;
+jac_hx_dot = [jac_hx_dot1, jac_hx_dot2, jac_hx_dot3, jac_hx_dot4, jac_hx_dot5, jac_hx_dot6];
+
+reduced_h = jac_hy * yddot + jac_hx * xddot + jac_hy_dot * ydot + jac_hx_dot * xdot;
+inv_jac_hx = simplify(inv(jax_hx));
+My = simplify(M11bar - M12bar * inv_jac_hx * jac_hy);
+
+% control law
+Kp = 10.0;
+Kd = 0.01;
+syms r rdot rddot real % reference trajectories
+u = My * (Kp * (r - y) + Kd * (rdot - ydot) + rddot);
 
 toc
