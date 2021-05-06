@@ -2,4 +2,4 @@
 add_executable(RecognitionAccuracy recognition_accuracy.cpp)
 
 # Link libraries to executables
-target_link_libraries(RecognitionAccuracy Delta-lib Threads::Threads spdlog::spdlog ${OpenCV_LIBS} Matplot++::matplot)
+target_link_libraries(RecognitionAccuracy Delta-lib Threads::Threads spdlog::spdlog ${OpenCV_LIBS}) # Matplot++::matplot

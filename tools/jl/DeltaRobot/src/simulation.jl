@@ -454,3 +454,130 @@ given the solution and the robot parameters, computes the lagrangian and hamilto
 function delta_robot_energy(sol, p)
 
 end
+
+function gravity_compensated_model!(out, dx, x, p, t)
+    # states of plant
+    q11 = x[1];
+    q12 = x[2];
+    q13 = x[3];
+    q21 = x[4];
+    q22 = x[5];
+    q23 = x[6];
+    q31 = x[7];
+    q32 = x[8];
+    q33 = x[9];
+    q11dot = x[10];
+    q12dot = x[11];
+    q13dot = x[12];
+    q21dot = x[13];
+    q22dot = x[14];
+    q23dot = x[15];
+    q31dot = x[16];
+    q32dot = x[17];
+    q33dot = x[18];
+    lambda1 = x[19];
+    lambda2 = x[20];
+    lambda3 = x[21];
+    lambda4 = x[22];
+    lambda5 = x[23];
+    lambda6 = x[24];
+
+    # model params
+    m1 = p.m1;
+    m2 = p.m2;
+    m3 = p.m3;
+    l1 = p.l1;
+    l2 = p.l2;
+    g = p.g;
+    r_base = p.rb;
+    r_platform = p.rp
+
+    # inertia matrix
+    M1 = [(l1^ 2*(m1 + 3*m2 + m3))/3, (l1*l2*(sin(q11)*sin(q12) + cos(q11)*cos(q12)*cos(q13))*(3*m2 + 2*m3))/6, -(l1*l2*cos(q11)*sin(q12)*sin(q13)*(3*m2 + 2*m3))/6]';
+    M2 = [(l1*l2*(sin(q11)*sin(q12) + cos(q11)*cos(q12)*cos(q13))*(3*m2 + 2*m3))/6, (l2^2*(m2 + m3))/3, 0]';
+    M3 = [-(l1*l2*cos(q11)*sin(q12)*sin(q13)*(3*m2 + 2*m3))/6, 0, -(l2^2*(m2 + m3)*(cos(q12)^2 - 1))/3]';
+    Mtop = [M1; M2; M3];
+
+    M4 = [(l1^2*(m1 + 3*m2 + m3))/3, (l1*l2*(sin(q21)*sin(q22) + cos(q21)*cos(q22)*cos(q23))*(3*m2 + 2*m3))/6, -(l1*l2*cos(q21)*sin(q22)*sin(q23)*(3*m2 + 2*m3))/6]';
+    M5 = [(l1*l2*(sin(q21)*sin(q22) + cos(q21)*cos(q22)*cos(q23))*(3*m2 + 2*m3))/6, (l2^2*(m2 + m3))/3, 0]';
+    M6 = [-(l1*l2*cos(q21)*sin(q22)*sin(q23)*(3*m2 + 2*m3))/6, 0, -(l2^2*(m2 + m3)*(cos(q22)^2 - 1))/3]';
+    Mmid = [M4; M5; M6];
+
+    M7 = [(l1^2*(m1 + 3*m2 + m3))/3, (l1*l2*(sin(q31)*sin(q32) + cos(q31)*cos(q32)*cos(q33))*(3*m2 + 2*m3))/6, -(l1*l2*cos(q31)*sin(q32)*sin(q33)*(3*m2 + 2*m3))/6]';
+    M8 = [(l1*l2*(sin(q31)*sin(q32) + cos(q31)*cos(q32)*cos(q33))*(3*m2 + 2*m3))/6, (l2^2*(m2 + m3))/3, 0]';
+    M9 = [-(l1*l2*cos(q31)*sin(q32)*sin(q33)*(3*m2 + 2*m3))/6, 0, -(l2^2*(m2 + m3)*(cos(q32)^2 - 1))/3]';
+    Mbot = [M7; M8; M9];
+
+    invMtop = inv(Mtop);
+    invMmid = inv(Mmid);
+    invMbot = inv(Mbot);
+    invM1 = [invMtop[1,:]; 0; 0; 0; 0; 0; 0]';
+    invM2 = [invMtop[2,:]; 0; 0; 0; 0; 0; 0]';
+    invM3 = [invMtop[3,:]; 0; 0; 0; 0; 0; 0]';
+    invM4 = [0; 0; 0; invMmid[1,:]; 0; 0; 0]';
+    invM5 = [0; 0; 0; invMmid[2,:]; 0; 0; 0]';
+    invM6 = [0; 0; 0; invMmid[3,:]; 0; 0; 0]';
+    invM7 = [0; 0; 0; 0; 0; 0; invMbot[1,:]]';
+    invM8 = [0; 0; 0; 0; 0; 0; invMbot[2,:]]';
+    invM9 = [0; 0; 0; 0; 0; 0; invMbot[3,:]]';
+    invM = [invM1; invM2; invM3; invM4; invM5; invM6; invM7; invM8; invM9]
+
+    C = [
+        -(l1*l2*(3*m2 + 2*m3)*(q12dot^2*cos(q11)*cos(q13)*sin(q12) - q12dot^2*cos(q12)*sin(q11) + q13dot^2*cos(q11)*cos(q13)*sin(q12) + 2*q12dot*q13dot*cos(q11)*cos(q12)*sin(q13)))/6;
+        -(l2*(l2*m2*q13dot^2*sin(2*q12) + l2*m3*q13dot^2*sin(2*q12) - 3*l1*m2*q11dot^2*cos(q11)*sin(q12) - 2*l1*m3*q11dot^2*cos(q11)*sin(q12) + 3*l1*m2*q11dot^2*cos(q12)*cos(q13)*sin(q11) + 2*l1*m3*q11dot^2*cos(q12)*cos(q13)*sin(q11)))/6;
+        (l2*sin(q12)*(3*l1*m2*q11dot^2*sin(q11)*sin(q13) + 2*l1*m3*q11dot^2*sin(q11)*sin(q13) + 4*l2*m2*q12dot*q13dot*cos(q12) + 4*l2*m3*q12dot*q13dot*cos(q12)))/6;
+        -(l1*l2*(3*m2 + 2*m3)*(q22dot^2*cos(q21)*cos(q23)*sin(q22) - q22dot^2*cos(q22)*sin(q21) + q23dot^2*cos(q21)*cos(q23)*sin(q22) + 2*q22dot*q23dot*cos(q21)*cos(q22)*sin(q23)))/6;
+        -(l2*(l2*m2*q23dot^2*sin(2*q22) + l2*m3*q23dot^2*sin(2*q22) - 3*l1*m2*q21dot^2*cos(q21)*sin(q22) - 2*l1*m3*q21dot^2*cos(q21)*sin(q22) + 3*l1*m2*q21dot^2*cos(q22)*cos(q23)*sin(q21) + 2*l1*m3*q21dot^2*cos(q22)*cos(q23)*sin(q21)))/6;
+        (l2*sin(q22)*(3*l1*m2*q21dot^2*sin(q21)*sin(q23) + 2*l1*m3*q21dot^2*sin(q21)*sin(q23) + 4*l2*m2*q22dot*q23dot*cos(q22) + 4*l2*m3*q22dot*q23dot*cos(q22)))/6;
+        -(l1*l2*(3*m2 + 2*m3)*(q32dot^2*cos(q31)*cos(q33)*sin(q32) - q32dot^2*cos(q32)*sin(q31) + q33dot^2*cos(q31)*cos(q33)*sin(q32) + 2*q32dot*q33dot*cos(q31)*cos(q32)*sin(q33)))/6;
+        -(l2*(l2*m2*q33dot^2*sin(2*q32) + l2*m3*q33dot^2*sin(2*q32) - 3*l1*m2*q31dot^2*cos(q31)*sin(q32) - 2*l1*m3*q31dot^2*cos(q31)*sin(q32) + 3*l1*m2*q31dot^2*cos(q32)*cos(q33)*sin(q31) + 2*l1*m3*q31dot^2*cos(q32)*cos(q33)*sin(q31)))/6;
+        (l2*sin(q32)*(3*l1*m2*q31dot^2*sin(q31)*sin(q33) + 2*l1*m3*q31dot^2*sin(q31)*sin(q33) + 4*l2*m2*q32dot*q33dot*cos(q32) + 4*l2*m3*q32dot*q33dot*cos(q32)))/6
+    ];
+
+    h = [
+        l2*sin(q12)*sin(q13) - (3^(1/2)*(r_base - r_platform + l1*cos(q21) + l2*cos(q22)))/2 + (l2*sin(q22)*sin(q23))/2
+        (3*r_base)/2 - (3*r_platform)/2 + l1*cos(q11) + l2*cos(q12) + (l1*cos(q21))/2 + (l2*cos(q22))/2 + (3^(1/2)*l2*sin(q22)*sin(q23))/2
+        l1*sin(q11) - l1*sin(q21) + l2*cos(q13)*sin(q12) - l2*cos(q23)*sin(q22)
+        (3^(1/2)*(r_base - r_platform + l1*cos(q31) + l2*cos(q32)))/2 + l2*sin(q12)*sin(q13) + (l2*sin(q32)*sin(q33))/2
+        (3*r_base)/2 - (3*r_platform)/2 + l1*cos(q11) + l2*cos(q12) + (l1*cos(q31))/2 + (l2*cos(q32))/2 - (3^(1/2)*l2*sin(q32)*sin(q33))/2
+        l1*sin(q11) - l1*sin(q31) + l2*cos(q13)*sin(q12) - l2*cos(q33)*sin(q32)
+    ];
+
+    H1 = [0, l2*cos(q12)*sin(q13), l2*cos(q13)*sin(q12), (3^(1/2)*l1*sin(q21))/2, (3^(1/2)*l2*sin(q22))/2 + (l2*cos(q22)*sin(q23))/2, (l2*cos(q23)*sin(q22))/2, 0, 0, 0]';
+    H2 = [-l1*sin(q11), -l2*sin(q12), 0, -(l1*sin(q21))/2, (3^(1/2)*l2*cos(q22)*sin(q23))/2 - (l2*sin(q22))/2, (3^(1/2)*l2*cos(q23)*sin(q22))/2, 0, 0, 0]';
+    H3 = [l1*cos(q11), l2*cos(q12)*cos(q13), -l2*sin(q12)*sin(q13), -l1*cos(q21), -l2*cos(q22)*cos(q23), l2*sin(q22)*sin(q23), 0, 0, 0]';
+    H4 = [0, l2*cos(q12)*sin(q13), l2*cos(q13)*sin(q12), 0, 0, 0, -(3^(1/2)*l1*sin(q31))/2, (l2*cos(q32)*sin(q33))/2 - (3^(1/2)*l2*sin(q32))/2, (l2*cos(q33)*sin(q32))/2]';
+    H5 = [-l1*sin(q11), -l2*sin(q12), 0, 0, 0, 0, -(l1*sin(q31))/2, - (l2*sin(q32))/2 - (3^(1/2)*l2*cos(q32)*sin(q33))/2, -(3^(1/2)*l2*cos(q33)*sin(q32))/2]';
+    H6 = [l1*cos(q11), l2*cos(q12)*cos(q13), -l2*sin(q12)*sin(q13), 0, 0, 0, -l1*cos(q31), -l2*cos(q32)*cos(q33), l2*sin(q32)*sin(q33)]';
+    H = [H1; H2; H3; H4; H5; H6];
+
+    H1dot = [0, l2*q13dot*cos(q12)*cos(q13) - l2*q12dot*sin(q12)*sin(q13), l2*q12dot*cos(q12)*cos(q13) - l2*q13dot*sin(q12)*sin(q13), (3^(1/2)*l1*q21dot*cos(q21))/2, (l2*q23dot*cos(q22)*cos(q23))/2 - q22dot*((l2*sin(q22)*sin(q23))/2 - (3^(1/2)*l2*cos(q22))/2), (l2*q22dot*cos(q22)*cos(q23))/2 - (l2*q23dot*sin(q22)*sin(q23))/2, 0, 0, 0]';
+    H2dot = [-l1*q11dot*cos(q11), -l2*q12dot*cos(q12), 0, -(l1*q21dot*cos(q21))/2, (3^(1/2)*l2*q23dot*cos(q22)*cos(q23))/2 - q22dot*((l2*cos(q22))/2 + (3^(1/2)*l2*sin(q22)*sin(q23))/2), (3^(1/2)*l2*q22dot*cos(q22)*cos(q23))/2 - (3^(1/2)*l2*q23dot*sin(q22)*sin(q23))/2, 0, 0, 0]';
+    H3dot = [-l1*q11dot*sin(q11), - l2*q12dot*cos(q13)*sin(q12) - l2*q13dot*cos(q12)*sin(q13), - l2*q12dot*cos(q12)*sin(q13) - l2*q13dot*cos(q13)*sin(q12), l1*q21dot*sin(q21), l2*q22dot*cos(q23)*sin(q22) + l2*q23dot*cos(q22)*sin(q23), l2*q22dot*cos(q22)*sin(q23) + l2*q23dot*cos(q23)*sin(q22), 0, 0, 0]';
+    H4dot = [0, l2*q13dot*cos(q12)*cos(q13) - l2*q12dot*sin(q12)*sin(q13), l2*q12dot*cos(q12)*cos(q13) - l2*q13dot*sin(q12)*sin(q13), 0, 0, 0, -(3^(1/2)*l1*q31dot*cos(q31))/2, (l2*q33dot*cos(q32)*cos(q33))/2 - q32dot*((l2*sin(q32)*sin(q33))/2 + (3^(1/2)*l2*cos(q32))/2), (l2*q32dot*cos(q32)*cos(q33))/2 - (l2*q33dot*sin(q32)*sin(q33))/2]';
+    H5dot = [-l1*q11dot*cos(q11), -l2*q12dot*cos(q12), 0, 0, 0, 0, -(l1*q31dot*cos(q31))/2, - q32dot*((l2*cos(q32))/2 - (3^(1/2)*l2*sin(q32)*sin(q33))/2) - (3^(1/2)*l2*q33dot*cos(q32)*cos(q33))/2, (3^(1/2)*l2*q33dot*sin(q32)*sin(q33))/2 - (3^(1/2)*l2*q32dot*cos(q32)*cos(q33))/2]';
+    H6dot = [-l1*q11dot*sin(q11), - l2*q12dot*cos(q13)*sin(q12) - l2*q13dot*cos(q12)*sin(q13), - l2*q12dot*cos(q12)*sin(q13) - l2*q13dot*cos(q13)*sin(q12), 0, 0, 0, l1*q31dot*sin(q31), l2*q32dot*cos(q33)*sin(q32) + l2*q33dot*cos(q32)*sin(q33), l2*q32dot*cos(q32)*sin(q33) + l2*q33dot*cos(q33)*sin(q32)]';
+    Hdot = [H1dot; H2dot; H3dot; H4dot; H5dot; H6dot];
+
+    D = zeros(9);
+    D[1] = p.d1;
+    D[2] = p.d2;
+    D[3] = p.d3;
+    D[4] = p.d1;
+    D[5] = p.d2;
+    D[6] = p.d3;
+    D[7] = p.d1;
+    D[8] = p.d2;
+    D[9] = p.d3;
+
+    invM_times_b = invM \ (-C); #.- D .* x[10:18]); # invD_times_b = invD * b;
+    println("Hello $(invM_times_b)")
+    z0 = h;
+    z1 = H * x[10:18];
+    z2 = Hdot * x[10:18] .+ H * invM_times_b;
+    z = z0 + z1 + z2;
+
+    out[1:9] = x[10:18] .- dx[1:9]; # first derivative residual
+    out[10:18] = invM_times_b .- dx[10:18]; # second derivative residual
+    out[19:24] = z; # index reduced holonomic constraint
+end

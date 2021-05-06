@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(cmake/FindMLPACK.cmake)
+
 # Must include to avoid failing on Linux with std::thread
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -15,11 +17,14 @@ find_package(spdlog REQUIRED) # Logging Library
 find_package(yaml-cpp REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Matplot++ REQUIRED)
+find_package(Armadillo REQUIRED)
+find_package(MLPACK REQUIRED)
 
 # Include Library Directories
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${YAML_CPP_INCLUDE_DIR})
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${MLPACK_INCLUDE_DIRS})
 set(EIGEN_DIR /usr/local/include/eigen3)
 include_directories(${EIGEN_DIR})
 include_directories(include)
@@ -90,7 +95,7 @@ set(DELTA_LIB_SRCS
 add_library(Delta-lib ${DELTA_LIB_SRCS})
 set_target_properties(Delta-lib PROPERTIES PREFIX "")
 link_directories(libs)
-target_link_libraries(Delta-lib Matplot++::matplot Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS})
+target_link_libraries(Delta-lib Threads::Threads yaml-cpp spdlog::spdlog ${OpenCV_LIBS} Matplot++::matplot) # Matplot++::matplot
 target_include_directories(Delta-lib PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${SPDLOG_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIR})
 
 # Create main executable
