@@ -15,6 +15,8 @@ mutable struct DeltaRobotParams
     d1::Real # damping between link 1 and base
     d2::Real # damping between link 1 and link 2 in phi2 direction
     d3::Real # damping between link 1 and link 2 in phi3 direction
+    Kp::Real # proportional control constant
+    Kd::Real # derivative control constant
 
-    DeltaRobotParams(m1, m2, m3, l1, l2, g, rb=0.0, rp=0.0, d1=0.0, d2=0.0, d3=0.0) = new(m1, m2, m3, l1, l2, g, rb, rp, d1, d2, d3)
+    DeltaRobotParams(m1, m2, m3, l1, l2, g, rb=0.0, rp=0.0, d1=0.0, d2=0.0, d3=0.0, Kp=10.0, Kd=0.1) = new(m1, m2, m3, l1, l2, g, rb, rp, d1, d2, d3, Kp, Kd)
 end

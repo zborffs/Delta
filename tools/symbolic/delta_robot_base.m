@@ -36,8 +36,8 @@ syms g real % gravity (m/s^2)
 syms r_base r_platform real % radius of base
 lc1 = l1 / 2; % distance to center of mass along link 1 (m)
 lc2 = l2 / 2; % distance to center of mass along link 2 (m)
-J1 = m1 * l1^2 / 12.0; % inertia link 1 (assuming rod) -> 1/3
-J2 = m2 * l2^2 / 12.0; % inertia link 2 (assuming rod) -> 1/3
+J1 = m1 * l1^2 / 12.0; % inertia link 1 (assuming rod) -> 1/3 (12.0)
+J2 = m2 * l2^2 / 12.0; % inertia link 2 (assuming rod) -> 1/3 (12.0)
 
 %% Compute Lagrangian for First Arm
 disp("[2/11] Computing Lagrangian of first arm...");
@@ -191,15 +191,15 @@ J = jacobian(h, [q12, q13, q22, q23, q32, q33]);
 % for_kin_matrix = J \ -h;
 
 %% Solve for gravity-compensation non-linear equations
-B = [1 0 0 0 0 0 0 0 0; 
-     0 0 0 0 0 0 0 0 0;
-     0 0 0 0 0 0 0 0 0;
-     0 0 0 1 0 0 0 0 0;
-     0 0 0 0 0 0 0 0 0;
-     0 0 0 0 0 0 0 0 0;
-     0 0 0 0 0 0 1 0 0;
-     0 0 0 0 0 0 0 0 0;
-     0 0 0 0 0 0 0 0 0];
+B = [1 0 0 0 0 0 0 0 0;
+    0 0 0 0 0 0 0 0 0;
+    0 0 0 0 0 0 0 0 0;
+    0 0 0 1 0 0 0 0 0;
+    0 0 0 0 0 0 0 0 0;
+    0 0 0 0 0 0 0 0 0;
+    0 0 0 0 0 0 1 0 0;
+    0 0 0 0 0 0 0 0 0;
+    0 0 0 0 0 0 0 0 0];
 % B * tau == G - H'*lambda
 % as far as I can tell, these are intractable or there's literally no
 % solution
@@ -228,17 +228,17 @@ jac_hx = jacobian(h, x);
 jac_hy_dot1 = jacobian(jac_hy(:,1), y) * ydot;
 jac_hy_dot2 = jacobian(jac_hy(:,2), y) * ydot;
 jac_hy_dot3 = jacobian(jac_hy(:,3), y) * ydot;
-jac_hy_dot = [jac_hy_dot1, jac_hy_dot2, jac_hy_dot3];
+jac_hy_dot = [jac_hy_dot1 jac_hy_dot2 jac_hy_dot3];
 jac_hx_dot1 = jacobian(jac_hx(:,1), x) * xdot;
 jac_hx_dot2 = jacobian(jac_hx(:,2), x) * xdot;
 jac_hx_dot3 = jacobian(jac_hx(:,3), x) * xdot;
 jac_hx_dot4 = jacobian(jac_hx(:,4), x) * xdot;
 jac_hx_dot5 = jacobian(jac_hx(:,5), x) * xdot;
 jac_hx_dot6 = jacobian(jac_hx(:,6), x) * xdot;
-jac_hx_dot = [jac_hx_dot1, jac_hx_dot2, jac_hx_dot3, jac_hx_dot4, jac_hx_dot5, jac_hx_dot6];
+jac_hx_dot = [jac_hx_dot1 jac_hx_dot2 jac_hx_dot3 jac_hx_dot4 jac_hx_dot5 jac_hx_dot6];
 
-reduced_h = jac_hy * yddot + jac_hx * xddot + jac_hy_dot * ydot + jac_hx_dot * xdot;
-inv_jac_hx = simplify(inv(jax_hx));
+reduced_h = simplify(jac_hy * yddot + jac_hx * xddot + jac_hy_dot * ydot + jac_hx_dot * xdot);
+inv_jac_hx = simplify(inv(jac_hx));
 My = simplify(M11bar - M12bar * inv_jac_hx * jac_hy);
 
 % control law

@@ -11,9 +11,9 @@ no_damped_prob = ODEProblem(delta_arm!, u0, tspan, no_damped_plant) # define ODE
 no_damped_sol = solve(no_damped_prob, saveat=dt) # solve ode
 
 # Animate solution to ODE
-gr()
+plotly()
 no_damped_anim = animate_arm(no_damped_sol, no_damped_plant) # animate the solution
-gif(no_damped_anim, "../res/animations/no_damp_1.gif", fps=convert(Int64, 1 / dt)) # make a gif
+gif(no_damped_anim, fps=convert(Int64, 1 / dt)) # make a gif
 
 # Plot solution to ODE
 plotly()

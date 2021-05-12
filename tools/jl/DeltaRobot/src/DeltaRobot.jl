@@ -1,8 +1,6 @@
 module DeltaRobot
 
 include("animation.jl")
-# include("block_diagram.jl")
-# include("control.jl")
 include("delta_robot_params.jl")
 include("kinematics.jl")
 include("simulation.jl")

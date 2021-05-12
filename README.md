@@ -17,6 +17,7 @@ Dependencies (C/C++)
 - Matplot++
 - Eigen
 - Cloak-lib
+- mlpack
 
 Target
 ------
